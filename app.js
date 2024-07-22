@@ -19,10 +19,11 @@ let session_opt = {
 
 app.use(session(session_opt));
 app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/project', projectRouter);
 app.use('/login', loginRouter);
+
+//app.use(express.static(path.join(__dirname, 'public')));
 
 module.exports = app;
