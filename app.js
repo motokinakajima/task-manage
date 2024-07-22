@@ -21,6 +21,23 @@ app.use(session(session_opt));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+app.use((err, req, res, next) => {
+    console.error(err.stack); // Log the error stack to the console
+
+    // Send a detailed error message in development mode
+    if (process.env.NODE_ENV === 'development') {
+        res.status(err.status || 500).json({
+            message: err.message,
+            stack: err.stack
+        });
+    } else {
+        // Send a generic error message in production
+        res.status(err.status || 500).json({
+            message: 'Something went wrong! Please try again later.'
+        });
+    }
+});
+
 
 app.use('/', indexRouter);
 app.use('/project', projectRouter);
