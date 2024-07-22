@@ -25,6 +25,20 @@ app.use('/', indexRouter);
 app.use('/project', projectRouter);
 app.use('/login', loginRouter);
 
+app.use((err, req, res, next) => {
+    console.error(err.stack); // Log the error stack to the console
+
+    if (process.env.NODE_ENV === 'development') {
+        res.status(err.status || 500).json({
+            message: err.message,
+            stack: err.stack
+        });
+    } else {
+        res.status(err.status || 500).json({
+            message: 'Something went wrong! Please try again later.'
+        });
+    }
+});
 //app.use(express.static(path.join(__dirname, 'public')));
 
 module.exports = app;
