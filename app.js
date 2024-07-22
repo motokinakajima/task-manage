@@ -19,6 +19,8 @@ let session_opt = {
 
 app.use(session(session_opt));
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
 
 app.use('/', indexRouter);
 app.use('/project', projectRouter);
