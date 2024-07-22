@@ -26,7 +26,7 @@ app.use('/project', projectRouter);
 app.use('/login', loginRouter);
 
 app.use((err, req, res, next) => {
-    console.error(err.stack); // Log the error stack to the console
+    console.error('Error stack:', err.stack); // Log the full error stack
 
     if (process.env.NODE_ENV === 'development') {
         res.status(err.status || 500).json({
