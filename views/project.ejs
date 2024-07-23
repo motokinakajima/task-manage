@@ -3,10 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Project</title>
 </head>
 <body>
-<h1>Projects</h1>
-<p>task list should appear</p>
+<h1>Project Data</h1>
+<% if (rows && rows.length > 0) { %>
+    <table>
+        <thead>
+        <tr>
+            <% Object.keys(rows[0]).forEach(function(key) { %>
+                <th><%= key %></th>
+            <% }); %>
+        </tr>
+        </thead>
+        <tbody>
+        <% rows.forEach(function(row) { %>
+            <tr>
+                <% Object.values(row).forEach(function(value) { %>
+                    <td><%= value %></td>
+                <% }); %>
+            </tr>
+        <% }); %>
+        </tbody>
+    </table>
+<% } else { %>
+    <p>No data found for this project.</p>
+<% } %>
 </body>
+<a href="/project/create-task">create task</a>
 </html>

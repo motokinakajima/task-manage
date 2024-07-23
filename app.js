@@ -8,6 +8,7 @@ const sqlite3 = require('sqlite3');
 const indexRouter = require('./routes/index');
 const projectRouter = require('./routes/project');
 const loginRouter = require('./routes/login');
+const dashboardRouter = require('./routes/dashboard');
 
 // Initialize Express app
 const app = express();
@@ -29,12 +30,13 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 // Serve static files
-app.use(express.static(path.join(__dirname, 'public')));
+//app.use(express.static(path.join(__dirname, 'public')));
 
 // Define routes
 app.use('/', indexRouter);
 app.use('/project', projectRouter);
 app.use('/login', loginRouter);
+app.use('/dashboard', dashboardRouter);
 
 // Error-handling middleware
 app.use((err, req, res, next) => {

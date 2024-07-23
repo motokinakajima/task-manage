@@ -27,31 +27,33 @@ router.post('/', async (req, res) => {
     console.log(mail);
 
     try {
-        const users = await new Promise((resolve, reject) => {
-            db.all("SELECT * FROM users WHERE mail = ? AND password = ?", [mail, password], (err, rows) => {
+        // Get user details
+        const user = await new Promise((resolve, reject) => {
+            db.get("SELECT * FROM users WHERE mail = ? AND password = ?", [mail, password], (err, row) => {
                 if (err) {
                     reject(err);
                 } else {
-                    resolve(rows);
+                    resolve(row);
                 }
             });
         });
 
-        if (users.length > 0) {
-            req.session.mail = mail;
-            req.session.password = password;
-            res.redirect('/');
+        if (user) {
+            // Set session variables
+            req.session.userID = user.userID;
+            req.session.userName = user.name;
+            res.redirect('/dashboard');
         } else {
             res.render('login');
         }
     } catch (error) {
-        console.error(error);
+        console.error('Error occurred:', error);
         res.status(500).send('Internal Server Error');
     }
 });
 
 router.post('/create', async (req, res) => {
-    let name = req.body['name'];
+    let name = req.body['usr_name'];
     let mail = req.body['mail'];
     let password = req.body['password'];
     console.log('Received values:', { name, mail, password });
@@ -76,7 +78,7 @@ router.post('/create', async (req, res) => {
         let userID;
         let isNotUnique = true;
         while (isNotUnique) {
-            userID = Math.random().toString(36).substring(2);
+            userID = "u" + Math.random().toString(36).substring(2);
             const existingIDs = await new Promise((resolve, reject) => {
                 db.all("SELECT * FROM users WHERE userID = ?", [userID], (err, rows) => {
                     if (err) {
