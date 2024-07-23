@@ -3,6 +3,7 @@ const session = require('express-session');
 const bodyParser = require('body-parser');
 const path = require('path');
 const sqlite3 = require('sqlite3');
+const SQLiteStore = require('connect-sqlite3')(session);
 
 // Route handlers
 const indexRouter = require('./routes/index');
@@ -20,10 +21,17 @@ app.use(bodyParser.urlencoded({ extended: true })); // For parsing application/x
 
 // Session configuration
 app.use(session({
+    store: new SQLiteStore({
+        db: 'sessions.sqlite',
+        dir: './public/db/'
+    }),
     secret: 'keyboard cat',
     resave: false,
     saveUninitialized: false,
-    cookie: { maxAge: 60 * 60 * 1000 } // 1 hour
+    cookie: {
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict'
+    }
 }));
 
 // Set view engine
@@ -33,6 +41,12 @@ app.set('views', path.join(__dirname, 'views'));
 // Serve static files
 //app.use(express.static(path.join(__dirname, 'public')));
 app.set('views', path.join(__dirname, 'views'));
+
+app.use((req, res, next) => {
+    console.log('Session:', req.session);
+    next();
+});
+
 // Define routes
 app.use('/', indexRouter);
 app.use('/project', projectRouter);
