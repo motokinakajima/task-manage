@@ -9,6 +9,7 @@ const indexRouter = require('./routes/index');
 const projectRouter = require('./routes/project');
 const loginRouter = require('./routes/login');
 const dashboardRouter = require('./routes/dashboard');
+const taskRouter = require('./routes/task');
 
 // Initialize Express app
 const app = express();
@@ -37,6 +38,7 @@ app.use('/', indexRouter);
 app.use('/project', projectRouter);
 app.use('/login', loginRouter);
 app.use('/dashboard', dashboardRouter);
+app.use('/task', taskRouter);
 
 // Error-handling middleware
 app.use((err, req, res, next) => {

@@ -44,7 +44,7 @@ router.get('/', function(req, res, next) {
             // Prepare data to render
             const data = {
                 projectData: projectData,
-                tasks: tasks
+                tasks: tasks,
             };
 
             // Render the page with data
@@ -101,6 +101,41 @@ router.post('/create-task', async (req, res, next) => {
                 //res.status(200).json({ message: "Project inserted successfully", projectID: this.lastID });
             }
         });
+
+        const sanitizedTableName = taskID.replace(/[^a-zA-Z0-9_]/g, '');
+        try {
+            await new Promise((resolve, reject) => {
+                const query = `CREATE TABLE IF NOT EXISTS ${sanitizedTableName} (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            comment TEXT NOT NULL,
+            commenter_id TEXT NOT NULL,
+            commenter_name TEXT NOT NULL,
+            created DATETIME NOT NULL
+        )`;
+                db.run(query, [], (err) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve();
+                    }
+                });
+            });
+
+            // Log schema
+            const schemaQuery = `PRAGMA table_info(${sanitizedTableName})`;
+            db.all(schemaQuery, (schemaErr, schema) => {
+                if (schemaErr) {
+                    console.error('Error fetching table schema:', schemaErr);
+                    return res.status(500).send('Internal Server Error');
+                }
+                console.log(`Schema for table ${sanitizedTableName}:`, schema);
+            });
+
+        } catch (err) {
+            console.error('Database query error:', err);
+            return res.status(500).send('Internal Server Error');
+        }
+
         res.redirect(`/project?pid=${p_id}`);
     }
 });

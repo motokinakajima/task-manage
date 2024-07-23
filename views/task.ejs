@@ -8,25 +8,24 @@
 <body>
 <div class="container">
     <div class="header">
-        <h1>Project Details</h1>
+        <h1>Task Details</h1>
     </div>
+    <p><a href="/dashboard">dashboard</a> > <a href="/project?pid=<%= projectData[0].projectID%>"><%= projectData[0].name%></a> > <a href="/task?pid=<%= projectData[0].projectID%>&tid=<%= taskData[0].taskID%>"><%= taskData[0].name%></a></p>
 
     <h2>Project Information</h2>
     <% if (projectData && projectData.length > 0) { %>
-        <table>
+        <table border="1">
             <thead>
             <tr>
-                <% Object.keys(projectData[0]).forEach(function(key) { %>
-                    <th><%= key %></th>
-                <% }); %>
+                <th>Project Name</th>
+                <th>description</th>
             </tr>
             </thead>
             <tbody>
             <% projectData.forEach(function(row) { %>
                 <tr>
-                    <% Object.values(row).forEach(function(value) { %>
-                        <td><%= value %></td>
-                    <% }); %>
+                    <td><a href="/project?pid=<%= row.projectID%>"><%= row.name%></a></td>
+                    <td><%= row.description%></td>
                 </tr>
             <% }); %>
             </tbody>
@@ -35,32 +34,69 @@
         <p>No project data available.</p>
     <% } %>
 
-    <h2>Tasks</h2>
-    <% if (tasks && tasks.length > 0) { %>
-        <table>
+    <h2>taskData</h2>
+    <% if (taskData && taskData.length > 0) { %>
+        <table border="1">
             <thead>
             <tr>
-                <% Object.keys(tasks[0]).forEach(function(key) { %>
-                    <th><%= key %></th>
-                <% }); %>
+                <th>Task Name</th>
+                <th>description</th>
+                <th>created date</th>
+                <th>due date</th>
+                <th>priority</th>
+                <th>risk</th>
             </tr>
             </thead>
             <tbody>
-            <% tasks.forEach(function(row) { %>
+            <% taskData.forEach(function(row) { %>
                 <tr>
-                    <% Object.values(row).forEach(function(value) { %>
-                        <td><%= value %></td>
-                    <% }); %>
+                    <td><a href="/task?pid=<%= projectData[0].projectID%>&tid=<%= row.taskID%>"><%= row.name%></a></td>
+                    <td><%= row.description%></td>
+                    <td><%= row.created%></td>
+                    <td><%= row.due%></td>
+                    <td><%= row.priority%></td>
+                    <td><%= row.risk%></td>
                 </tr>
             <% }); %>
             </tbody>
         </table>
     <% } else { %>
-        <p>No tasks available for this project.</p>
+        <p>No taskData available for this project.</p>
+    <% } %>
+
+    <h2>Comments</h2>
+    <% if (comments && comments.length > 0) { %>
+        <table border="1">
+            <thead>
+            <tr>
+                <th>Commenter Name</th>
+                <th>Comment</th>
+                <th>Date</th>
+            </tr>
+            </thead>
+            <tbody>
+            <% comments.forEach(function(row) { %>
+                <tr>
+                    <td><%= row.commenter_name%></td>
+                    <td><%= row.comment%></td>
+                    <td><%= row.created%></td>
+                </tr>
+            <% }); %>
+            </tbody>
+        </table>
+    <% } else { %>
+        <p>No comments available for this project.</p>
     <% } %>
 </div>
-<a href="/dashboard">back to dashboard</a>
 <br>
-<a href="/project/create-task">create task</a>
+<div class="container">
+    <form method="post" action="/task/">
+        <label for="comment"><b>Send comment</b></label>
+        <input type="text" placeholder="Enter comment" name="comment" required>
+        <br>
+
+        <button type="submit">comment</button>
+    </form>
+</div>
 </body>
 </html>
