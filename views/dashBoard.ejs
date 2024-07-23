@@ -19,13 +19,15 @@
     <tbody>
     <% rows.forEach(row => { %>
         <tr>
-            <td><%= row.projectID %></td>
+            <td><a href="/project?pid=<%= row.projectID %>"><%= row.projectID %></a></td>
             <td><%= row.name %></td>
             <td><%= row.description %></td>
         </tr>
     <% }) %>
     </tbody>
 </table>
+<a href="/dashboard">back to dashboard</a>
+<br>
 <a href="/dashboard/create-project">create project</a>
 </body>
 </html>

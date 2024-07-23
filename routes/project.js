@@ -20,16 +20,39 @@ router.get('/', function(req, res, next) {
         console.log(p_id);
         req.session.currentProject = p_id;
 
-        const query = "SELECT * FROM projects WHERE projectID = ?";
-        db.all(query, [p_id], (err, rows) => {
-            if (err) {
-                console.error('Database query error:', err);
-                return res.status(500).send('Internal Server Error');
-            }
-            console.log(rows);
+        const queryProject = "SELECT * FROM projects WHERE projectID = ?";
+        const queryTasks = `SELECT * FROM ${p_id}`;
 
-            // Make sure to pass an object to res.render
-            res.render('project', { rows: rows });
+        // Function to handle database queries
+        const runQuery = (query, params) => {
+            return new Promise((resolve, reject) => {
+                db.all(query, params, (err, rows) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(rows);
+                    }
+                });
+            });
+        };
+
+        // Execute both queries and wait for them to complete
+        Promise.all([
+            runQuery(queryProject, [p_id]),
+            runQuery(queryTasks, [])
+        ]).then(([projectData, tasks]) => {
+            // Prepare data to render
+            const data = {
+                projectData: projectData,
+                tasks: tasks
+            };
+
+            // Render the page with data
+            console.log(data);
+            res.render('project', data);
+        }).catch(err => {
+            console.error('Database query error:', err);
+            res.status(500).send('Internal Server Error');
         });
     }
 });
@@ -37,45 +60,48 @@ router.get('/', function(req, res, next) {
 router.get('/create-task', (req,res,next) => { res.render('create_task'); });
 
 
-router.post('/create-task', (req, res, next) => {
-    if(!req.session.userID || !req.session.currentProject){
+router.post('/create-task', async (req, res, next) => {
+    if (!req.session.userID || !req.session.currentProject) {
         res.redirect('/');
-    }else {
+    } else {
         const task_name = req.body['task_name'];
         const task_description = req.body['task_description'];
         const due_date = req.body['due_date'];
         const priority = req.body['priority'];
         const risk = req.body['risk'];
         const p_id = req.session.currentProject;
-        const sanitizedTableName = p_id.replace(/[^a-zA-Z0-9_]/g, '');
-        db.serialize(() => {
-            const query = `CREATE TABLE IF NOT EXISTS ${sanitizedTableName} (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                projectID TEXT NOT NULL UNIQUE, 
-                name TEXT NOT NULL,
-                description TEXT NOT NULL, 
-                created DATETIME NOT NULL, 
-                due DATETIME NOT NULL, 
-                priority TEXT NOT NULL, 
-                risk TEXT NOT NULL
-            )`;
-            db.run(query, [], (err) => {
-                if (err) {
-                    console.error('Database query error:', err);
-                    return res.status(500).send('Internal Server Error');
-                }
-                const schemaQuery = `PRAGMA table_info(${sanitizedTableName})`;
-                db.all(schemaQuery, (schemaErr, schema) => {
-                    if (schemaErr) {
-                        console.error('Error fetching table schema:', schemaErr);
-                        return res.status(500).send('Internal Server Error');
+        let taskID;
+        let isNotUnique = true;
+        while (isNotUnique) {
+            taskID = "t" + Math.random().toString(36).substring(2);
+            console.log(`trying to make a ${task_name} id: ${taskID}`);
+            const existingIDs = await new Promise((resolve, reject) => {
+                db.all(`SELECT * FROM ${p_id} WHERE taskID = ?`, [taskID], (err, rows) => {
+                    if (err) {
+                        console.log(err);
+                        reject(err);
+                    } else {
+                        resolve(rows);
                     }
-
-                    console.log(`Schema for table ${sanitizedTableName}:`, schema);
-                    res.redirect('/project?pid='+p_id);
                 });
             });
+
+            if (existingIDs.length === 0) {
+                isNotUnique = false;
+            }
+        }
+        console.log(`trying to make a ${task_name} id: ${taskID}`);
+        const insertQuery = `INSERT INTO ${p_id} (taskID, name, description, created, due, priority, risk) VALUES (?, ?, ?, datetime('now'), ?, ?, ?)`;
+        db.run(insertQuery, [taskID, task_name, task_description, due_date, priority, risk], function (err) {
+            if (err) {
+                console.error("Error inserting into projects:", err.message);
+                //res.status(500).json({ message: "Internal Server Error", error: err.message });
+            } else {
+                console.log("A row has been inserted with rowId", this.lastID);
+                //res.status(200).json({ message: "Project inserted successfully", projectID: this.lastID });
+            }
         });
+        res.redirect(`/project?pid=${p_id}`);
     }
 });
 

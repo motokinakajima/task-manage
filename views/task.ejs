@@ -3,11 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Project</title>
 </head>
 <body>
-<h1>Hello!!</h1>
-<p>this is index</p>
-<a href="/login">login</a>
+<div class="container">
+    <div class="header">
+        <h1>Project Details</h1>
+    </div>
+
+    <h2>Project Information</h2>
+    <% if (projectData && projectData.length > 0) { %>
+        <table>
+            <thead>
+            <tr>
+                <% Object.keys(projectData[0]).forEach(function(key) { %>
+                    <th><%= key %></th>
+                <% }); %>
+            </tr>
+            </thead>
+            <tbody>
+            <% projectData.forEach(function(row) { %>
+                <tr>
+                    <% Object.values(row).forEach(function(value) { %>
+                        <td><%= value %></td>
+                    <% }); %>
+                </tr>
+            <% }); %>
+            </tbody>
+        </table>
+    <% } else { %>
+        <p>No project data available.</p>
+    <% } %>
+
+    <h2>Tasks</h2>
+    <% if (tasks && tasks.length > 0) { %>
+        <table>
+            <thead>
+            <tr>
+                <% Object.keys(tasks[0]).forEach(function(key) { %>
+                    <th><%= key %></th>
+                <% }); %>
+            </tr>
+            </thead>
+            <tbody>
+            <% tasks.forEach(function(row) { %>
+                <tr>
+                    <% Object.values(row).forEach(function(value) { %>
+                        <td><%= value %></td>
+                    <% }); %>
+                </tr>
+            <% }); %>
+            </tbody>
+        </table>
+    <% } else { %>
+        <p>No tasks available for this project.</p>
+    <% } %>
+</div>
+<a href="/dashboard">back to dashboard</a>
+<br>
+<a href="/project/create-task">create task</a>
 </body>
 </html>
