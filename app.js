@@ -2,8 +2,8 @@ const express = require('express');
 const session = require('express-session');
 const bodyParser = require('body-parser');
 const path = require('path');
-const sqlite3 = require('sqlite3');
-const SQLiteStore = require('connect-sqlite3')(session);
+const Redis = require('ioredis');
+const RedisStore = require('connect-redis').default;
 
 // Route handlers
 const indexRouter = require('./routes/index');
@@ -15,23 +15,19 @@ const taskRouter = require('./routes/task');
 // Initialize Express app
 const app = express();
 
+const redisClient = new Redis(process.env.REDIS_URL);
+
 // Middleware setup
 app.use(bodyParser.json()); // For parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // For parsing application/x-www-form-urlencoded
 
 // Session configuration
 app.use(session({
-    store: new SQLiteStore({
-        db: 'sessions.sqlite',
-        dir: './public/db/'
-    }),
-    secret: 'keyboard cat',
+    store: new RedisStore({ client: redisClient }),
+    secret: process.env.SESSION_SECRET || 'fallback_secret_key',
     resave: false,
     saveUninitialized: false,
-    cookie: {
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict'
-    }
+    cookie: { secure: true, maxAge: 86400000 } // 1 day
 }));
 
 // Set view engine
@@ -46,6 +42,12 @@ app.use((req, res, next) => {
     console.log('Session:', req.session);
     next();
 });
+
+app.use((req, res, next) => {
+    console.log('Session ID:', req.sessionID);
+    console.log('Session Data:', req.session);
+    next();
+  });
 
 // Define routes
 app.use('/', indexRouter);
