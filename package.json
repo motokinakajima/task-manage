@@ -19,6 +19,7 @@
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
+    "@flydotio/dockerfile": "^0.5.8",
     "@types/node": "^18.17.1"
   }
 }

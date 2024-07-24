@@ -2,8 +2,8 @@ const express = require('express');
 const session = require('express-session');
 const bodyParser = require('body-parser');
 const path = require('path');
-const sqlite3 = require('sqlite3');
-const SQLiteStore = require('connect-sqlite3')(session);
+const Redis = require('redis');
+const RedisStore = require('connect-redis').default;
 
 // Route handlers
 const indexRouter = require('./routes/index');
@@ -15,25 +15,31 @@ const taskRouter = require('./routes/task');
 // Initialize Express app
 const app = express();
 
+const redisClient = Redis.createClient({
+    url: process.env.FLY_REDIS_URL
+  });
+
 // Middleware setup
 app.use(bodyParser.json()); // For parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // For parsing application/x-www-form-urlencoded
 
 // Session configuration
 app.use(session({
-    store: new SQLiteStore({
-        db: 'sessions.sqlite',
-        dir: './public/db/'
-    }),
-    secret: 'keyboard cat',
+    store: new RedisStore({ client: redisClient }),
+    secret: 'keyboard dog',
     resave: false,
     saveUninitialized: false,
-    cookie: {
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict'
-    }
+    cookie: { secure: true, maxAge: 86400000 } // 1 day
 }));
 
+redisClient.on('connect', () => {
+    console.log('Connected to Redis');
+  });
+  
+  redisClient.on('error', (err) => {
+    console.error('Redis error:', err);
+  });
+  
 // Set view engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
