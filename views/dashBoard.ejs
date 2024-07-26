@@ -17,12 +17,14 @@
     </tr>
     </thead>
     <tbody>
-    <% rows.forEach(row => { %>
+    <% if(projects) { %>
+    <% projects.forEach(row => { %>
         <tr>
             <td><a href="/project?pid=<%= row.projectID %>"><%= row.name %></a></td>
             <td><%= row.description %></td>
         </tr>
     <% }) %>
+    <% } %>
     </tbody>
 </table>
 <br>

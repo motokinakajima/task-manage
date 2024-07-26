@@ -2,8 +2,13 @@ const express = require('express');
 const session = require('express-session');
 const bodyParser = require('body-parser');
 const path = require('path');
-const Redis = require('ioredis');
-const RedisStore = require('connect-redis').default;
+const SQLiteStore = require('connect-sqlite3')(session);
+const { createClient } = require('@supabase/supabase-js');
+require('dotenv').config();
+
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Route handlers
 const indexRouter = require('./routes/index');
@@ -15,19 +20,18 @@ const taskRouter = require('./routes/task');
 // Initialize Express app
 const app = express();
 
-const redisClient = new Redis(process.env.REDIS_URL);
-
 // Middleware setup
 app.use(bodyParser.json()); // For parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // For parsing application/x-www-form-urlencoded
 
 // Session configuration
 app.use(session({
-    store: new RedisStore({ client: redisClient }),
-    secret: process.env.SESSION_SECRET || 'fallback_secret_key',
+    secret: 'your secret key',
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: true, maxAge: 86400000 } // 1 day
+    cookie: { secure: process.env.NODE_ENV === 'production', httpOnly: true },
+    sameSite: 'None',
+    maxAge: 24 * 60 * 60 * 1000
 }));
 
 // Set view engine
@@ -38,40 +42,11 @@ app.set('views', path.join(__dirname, 'views'));
 //app.use(express.static(path.join(__dirname, 'public')));
 app.set('views', path.join(__dirname, 'views'));
 
-app.use((req, res, next) => {
-    console.log('Session:', req.session);
-    next();
-});
-
-app.use((req, res, next) => {
-    console.log('Session ID:', req.sessionID);
-    console.log('Session Data:', req.session);
-    next();
-  });
-
 // Define routes
 app.use('/', indexRouter);
 app.use('/project', projectRouter);
 app.use('/login', loginRouter);
 app.use('/dashboard', dashboardRouter);
 app.use('/task', taskRouter);
-
-// Error-handling middleware
-app.use((err, req, res, next) => {
-    console.error('Error stack:', err.stack); // Log the full error stack
-
-    if (process.env.NODE_ENV === 'development') {
-        // Detailed error message in development
-        res.status(err.status || 500).json({
-            message: err.message,
-            stack: err.stack
-        });
-    } else {
-        // Generic error message in production
-        res.status(err.status || 500).json({
-            message: 'Something went wrong! Please try again later.'
-        });
-    }
-});
 
 module.exports = app;

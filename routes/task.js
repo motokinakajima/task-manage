@@ -2,6 +2,12 @@ const express = require('express');
 const router = express.Router();
 const sqlite3 = require('sqlite3');
 const path = require('path');
+const { createClient } = require('@supabase/supabase-js');
+require('dotenv').config();
+
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 const dbPath = path.join(__dirname, '..', 'public', 'db', 'mydb.sqlite3');
 const db = new sqlite3.Database(dbPath, (err) => {
