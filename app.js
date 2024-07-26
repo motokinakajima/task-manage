@@ -39,6 +39,8 @@ app.use(session({
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+console.log('Views directory:', app.get('views'));
+
 // Define routes
 app.use('/', indexRouter);
 app.use('/project', projectRouter);
