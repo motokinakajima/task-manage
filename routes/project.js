@@ -32,7 +32,7 @@ router.get('/create-task', (req,res,next) => { req.session.userID? res.render('c
 
 
 router.post('/create-task', async (req, res, next) => {
-    const p_id = req.session.userID
+    const p_id = req.session.currentProject;
     if (!p_id) {
         res.redirect('/');
     } else {
@@ -44,7 +44,7 @@ router.post('/create-task', async (req, res, next) => {
         while(!isUnique) {
             newTaskID = "t" + Math.random().toString(36).substring(2);
             const { data, error } = await supabase.from('tasks').select('*').eq('taskID', newTaskID);
-            if(!data){
+            if(!data[0]){
                 isUnique = true;
             }
         }

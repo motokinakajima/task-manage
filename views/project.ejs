@@ -4,6 +4,77 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Project</title>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', {'packages':['gantt']});
+        google.charts.setOnLoadCallback(drawChart);
+
+        let tasks = <%- JSON.stringify(tasks) %>;
+
+        function daysToMilliseconds(days) {
+            return days * 24 * 60 * 60 * 1000;
+        }
+
+        console.log(tasks);
+
+        function drawChart() {
+
+            var data = new google.visualization.DataTable();
+            data.addColumn('string', 'Task ID');
+            data.addColumn('string', 'Task Name');
+            data.addColumn('string', 'Resource');
+            data.addColumn('date', 'Start Date');
+            data.addColumn('date', 'End Date');
+            data.addColumn('number', 'Duration');
+            data.addColumn('number', 'Percent Complete');
+            data.addColumn('string', 'Dependencies');
+
+            let insertData = [];
+
+            if (tasks && tasks.length > 0) {
+                tasks.forEach(function(row) {
+                    // Parse start and end dates
+                    let startDate = new Date(row.start);
+                    let endDate = new Date(row.due);
+
+                    // Validate dates
+                    if (isNaN(startDate.getTime())) {
+                        console.error('Invalid start date:', row.start);
+                        startDate = new Date(); // Default to current date if invalid
+                    }
+
+                    if (isNaN(endDate.getTime())) {
+                        console.error('Invalid end date:', row.due);
+                        endDate = new Date(); // Default to current date if invalid
+                    }
+
+                    // Ensure duration is valid
+                    let duration = endDate >= startDate ? (endDate - startDate) / (1000 * 60 * 60 * 24) : 0; // Duration in days
+                    let rowData = [
+                        row.taskID ? row.taskID.toString() : '',
+                        row.name || 'Unnamed Task',
+                        row.description || 'No Description',
+                        startDate,
+                        endDate,
+                        duration * 24 * 60 * 60 * 1000, // Convert duration to milliseconds
+                        0, // Percent Complete
+                        '' // No dependencies
+                    ];
+                    insertData.push(rowData);
+                });
+            }
+
+            data.addRows(insertData);
+
+            var options = {
+                height: 275
+            };
+
+            var chart = new google.visualization.Gantt(document.getElementById('chart_div'));
+
+            chart.draw(data, options);
+        }
+    </script>
 </head>
 <body>
 <div class="container">
@@ -24,7 +95,7 @@
             <tbody>
             <% projectData.forEach(function(row) { %>
                 <tr>
-                    <td><a href="/project?pid=<%= row.projectID%>"><%= row.name%></a></td>
+                    <td><a href="/project/edit?pid=<%= row.projectID%>"><%= row.name%></a></td>
                     <td><%= row.description%></td>
                 </tr>
             <% }); %>
@@ -56,7 +127,7 @@
                 <tr>
                     <td><a href="/task?pid=<%= projectData[0].projectID%>&tid=<%= row.taskID%>"><%= row.name%></a></td>
                     <td><%= row.description%></td>
-                    <td><%= row.created%></td>
+                    <td><%= row.created_at%></td>
                     <td><%= row.due%></td>
                     <td><%= row.priority%></td>
                     <td><%= row.risk%></td>
@@ -71,6 +142,8 @@
     <% } else { %>
         <p>No tasks available for this project.</p>
     <% } %>
+
+    <div id="chart_div"></div>
 </div>
 <br>
 <a href="/project/create-task">create task</a>

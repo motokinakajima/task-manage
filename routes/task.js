@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const sqlite3 = require('sqlite3');
 const path = require('path');
 const { createClient } = require('@supabase/supabase-js');
 require('dotenv').config();
@@ -9,61 +8,30 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-const dbPath = path.join(__dirname, '..', 'public', 'db', 'mydb.sqlite3');
-const db = new sqlite3.Database(dbPath, (err) => {
-    if (err) {
-        console.error('Error opening database', err.message);
-    } else {
-        console.log('Database connected successfully');
-    }
-});
-
-const runQuery = (query, params) => {
-    return new Promise((resolve, reject) => {
-        db.all(query, params, (err, rows) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(rows);
-            }
-        });
-    });
-};
-router.get('/', (req,res,next) => {
+router.get('/', async (req,res,next) => {
     const t_id = req.query.tid;
     const p_id = req.query.pid;
     if(!t_id || !p_id){
         res.redirect('/dashboard');
     }else {
-        console.log(t_id);
         req.session.currentTask = t_id;
         req.session.currentProject = p_id;
 
-        const queryProject = "SELECT * FROM projects WHERE projectID = ?";
-        const queryTasks = `SELECT * FROM ${p_id} WHERE taskID = ?`;
-        const queryComments = `SELECT * FROM ${t_id}`;
+        const { data: projectData, error: projectError } = await supabase.from('projects').select('*').eq('projectID', p_id);
+        const { data: taskData, error: taskError } = await supabase.from('tasks').select('*').eq('taskID', t_id);
+        const { data: commentData, error: commentError } = await supabase.from('comments').select('*').eq('taskID', t_id);
 
-        Promise.all([
-            runQuery(queryProject, [p_id]),
-            runQuery(queryTasks, [t_id]),
-            runQuery(queryComments, [])
-        ]).then(([projectData, tasks, comments]) => {
-            const data = {
-                projectData: projectData,
-                taskData: tasks,
-                comments: comments
-            };
+        const returnData = {
+            projectData: projectData,
+            taskData: taskData,
+            comments: commentData
+        }
 
-            console.log(data);
-            res.render('task', data);
-        }).catch(err => {
-            console.error('Database query error:', err);
-            res.status(500).send('Internal Server Error');
-        });
+        res.render('task', returnData);
     }
 });
 
-router.post('/', (req,res,next) => {
+router.post('/', async (req,res,next) => {
     const comment = req.body['comment'];
     const commenterID = req.session.userID;
     const commenterName = req.session.userName;
@@ -72,30 +40,16 @@ router.post('/', (req,res,next) => {
     if(!comment || !commenterID || !commenterName || !t_id || !p_id){
         res.redirect('/');
     }else {
-        const queryProject = "SELECT * FROM projects WHERE projectID = ?";
-        const queryTasks = `SELECT * FROM ${p_id} WHERE taskID = ?`;
-        const queryComments = `SELECT * FROM ${t_id}`;
-        const insertQuery = `INSERT INTO ${t_id} (comment, commenter_id, commenter_name, created) VALUES (?, ?, ?, datetime('now'))`;
-        Promise.all([
-            runQuery(insertQuery, [comment, commenterID, commenterName]),
-            runQuery(queryProject, [p_id]),
-            runQuery(queryTasks, [t_id]),
-            runQuery(queryComments, [])
-        ])
-            .then(([insertResult, projectData, tasks, comments]) => {
-                const data = {
-                    projectData: projectData,
-                    taskData: tasks,
-                    comments: comments
-                };
-
-                console.log(data);
-                res.render('task', data);
-            })
-            .catch(err => {
-                console.error('Database query error:', err);
-                res.status(500).send('Internal Server Error');
-            });
+        const { data: projectData, error: projectError } = await supabase.from('projects').select('*').eq('projectID', p_id);
+        const { data: taskData, error: taskError } = await supabase.from('tasks').select('*').eq('taskID', t_id);
+        const { data: commentData, error: commentError } = await supabase.from('comments').select('*').eq('taskID', t_id);
+        const { error: insertError } = await supabase.from('comments').insert({ taskID: t_id, comment: comment, commenter_id: commenterID, commenter_name: commenterName });
+        const returnData = {
+            projectData: projectData,
+            taskData: taskData,
+            comments: commentData
+        }
+        res.redirect(`/task?pid=${p_id}&tid=${t_id}`);
     }
 });
 

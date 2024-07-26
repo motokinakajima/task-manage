@@ -35,8 +35,6 @@ router.post('/create-project', async (req, res, next) => {
 
     const { error } = await supabase.from('projects').insert({ projectID: newProjectID, name: project_name, description: project_description });
 
-    console.log(error);
-
     res.redirect('/project/?pid=' + newProjectID);
 });
 
