@@ -2,7 +2,6 @@ const express = require('express');
 const session = require('express-session');
 const bodyParser = require('body-parser');
 const path = require('path');
-const SQLiteStore = require('connect-sqlite3')(session);
 const { createClient } = require('@supabase/supabase-js');
 require('dotenv').config();
 
@@ -20,13 +19,15 @@ const taskRouter = require('./routes/task');
 // Initialize Express app
 const app = express();
 
+app.use(express.static(path.join(__dirname, 'public')));
+
 // Middleware setup
 app.use(bodyParser.json()); // For parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // For parsing application/x-www-form-urlencoded
 
 // Session configuration
 app.use(session({
-    secret: 'your secret key',
+    secret: process.env.SESSION_SECRET || 'default-secret', // Use environment variable
     resave: false,
     saveUninitialized: false,
     cookie: { secure: process.env.NODE_ENV === 'production', httpOnly: true },
@@ -36,10 +37,6 @@ app.use(session({
 
 // Set view engine
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
-
-// Serve static files
-app.use(express.static(path.join(__dirname, 'public')));
 app.set('views', path.join(__dirname, 'views'));
 
 // Define routes

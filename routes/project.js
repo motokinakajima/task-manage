@@ -11,6 +11,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 router.get('/', async (req, res, next) => {
     const p_id = req.query.pid;
+    req.session.currentProject = p_id;
     if (!p_id) {
         return res.redirect('/dashboard');
     } else {
@@ -32,12 +33,11 @@ router.get('/create-task', (req,res,next) => { req.session.userID? res.render('c
 
 
 router.post('/create-task', async (req, res, next) => {
+    const { task_name, task_description, start_date, due_date, priority, risk, responsible, accountable, consulted, informed} = req.body;
     const p_id = req.session.currentProject;
-    if (!p_id) {
-        res.redirect('/');
+    if (!p_id || !task_name || !task_description || !start_date || !due_date || !priority || !risk || !responsible || !accountable || !consulted || !informed) {
+        res.redirect('dashboard/');
     } else {
-        const { task_name, task_description, start_date, due_date, priority, risk, responsible, accountable, consulted, informed} = req.body;
-        console.log(req.body);
         let newTaskID;
         let isUnique = false;
 
@@ -50,8 +50,29 @@ router.post('/create-task', async (req, res, next) => {
         }
 
         const { error } = await supabase.from('tasks').insert({ taskID: newTaskID, projectID: p_id, name: task_name, description: task_description,
-            start: start_date, due: due_date, priority: priority, risk: risk, responsible: responsible, accountable: accountable, consulted: consulted, informed: informed});
-        console.log(error);
+            start: start_date, due: due_date, priority: priority, risk: risk, responsible: responsible, accountable: accountable, consulted: consulted, informed: informed });
+        res.redirect(`/project?pid=${p_id}`);
+    }
+});
+
+router.get('/edit-project', async (req, res, next) => {
+    const p_id = req.query.pid;
+    if(!p_id || !req.session.userID){
+        res.redirect('/dashboard');
+    }else{
+        req.session.currentProject = p_id;
+        const { data: projectData, error: projectError } = await supabase.from('projects').select('*').eq('projectID', p_id);
+        res.render('edit_project', { projectData: projectData });
+    }
+});
+
+router.post('/edit-project', async(req, res, next) => {
+    const { project_name, project_description } = req.body;
+    const p_id = req.session.currentProject;
+    if(!p_id || !project_name || !project_description){
+        res.redirect('/dashboard');
+    }else{
+        const { error } = await supabase.from('projects').update( {name: project_name, description: project_description }).eq('projectID', p_id);
         res.redirect(`/project?pid=${p_id}`);
     }
 });

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+<h1>create task!</h1>
+<div class="container">
+    <form method="post" action="/task/edit-task">
+        <label for="task_name"><b>Task Name</b></label>
+        <input type="text" value="<%= taskData[0].name %>" name="task_name" required>
+        <br>
+
+        <label for="task_description"><b>Task Description</b></label>
+        <input type="text" value="<%= taskData[0].description %>" name="task_description" required>
+        <br>
+
+        <label for="start_date"><b>Start Date</b></label>
+        <input type="date" value="<%= taskData[0].start %>" name="start_date" required>
+        <br>
+
+        <label for="due_date"><b>Due Date</b></label>
+        <input type="date" value="<%= taskData[0].due %>" name="due_date" required>
+        <br>
+
+        <label for="priority"><b>Priority</b></label>
+        <input type="text" value="<%= taskData[0].priority %>" name="priority" required>
+        <br>
+
+        <label for="risk"><b>Risk</b></label>
+        <input type="text" value="<%= taskData[0].risk %>" name="risk" required>
+        <br>
+
+        <label for="responsible"><b>Responsible</b></label>
+        <input type="text" value="<%= taskData[0].responsible %>" name="responsible" required>
+        <br>
+
+        <label for="accountable"><b>Accountable</b></label>
+        <input type="text" value="<%= taskData[0].accountable %>" name="accountable" required>
+        <br>
+
+        <label for="consulted"><b>Consulted</b></label>
+        <input type="text" value="<%= taskData[0].consulted %>" name="consulted" required>
+        <br>
+
+        <label for="informed"><b>Informed</b></label>
+        <input type="text" value="<%= taskData[0].informed %>" name="informed" required>
+
+        <button type="submit">submit</button>
+    </form>
+</div>
+</body>
+</html>

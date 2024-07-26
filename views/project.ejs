@@ -95,7 +95,7 @@
             <tbody>
             <% projectData.forEach(function(row) { %>
                 <tr>
-                    <td><a href="/project/edit?pid=<%= row.projectID%>"><%= row.name%></a></td>
+                    <td><a href="/project/edit-project?pid=<%= row.projectID%>"><%= row.name%></a></td>
                     <td><%= row.description%></td>
                 </tr>
             <% }); %>

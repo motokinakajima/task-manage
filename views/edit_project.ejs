@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+<h1>create project!</h1>
+<div class="container">
+    <form method="post" action="/project/edit-project">
+        <label for="project_name"><b>Project Name</b></label>
+        <input type="text" value="<%= projectData[0].name%>" name="project_name" required>
+        <br>
+
+        <label for="project_description"><b>Project Description</b></label>
+        <input type="text" value="<%= projectData[0].description%>" name="project_description" required>
+
+        <button type="submit">submit</button>
+    </form>
+</div>
+</body>
+</html>

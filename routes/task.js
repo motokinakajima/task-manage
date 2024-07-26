@@ -53,5 +53,30 @@ router.post('/', async (req,res,next) => {
     }
 });
 
+router.get('/edit-task', async (req, res, next) => {
+    const p_id = req.query.pid;
+    const t_id = req.query.tid;
+    if(!p_id || !t_id){
+        res.redirect('/dashboard');
+    }else{
+        req.session.currentProject = p_id;
+        req.session.currentTask = t_id;
+        const { data: taskData, error } = await supabase.from('tasks').select('*').eq('taskID', t_id);
+        res.render('edit_task', { taskData: taskData });
+    }
+});
+
+router.post('/edit-task', async (req, res, next) => {
+    const { task_name, task_description, start_date, due_date, priority, risk, responsible, accountable, consulted, informed} = req.body;
+    const p_id = req.session.currentProject;
+    const t_id = req.session.currentTask;
+    if(!p_id || !t_id || !task_name || !task_description || !start_date || !due_date || !priority || !risk || !responsible || !accountable || !consulted || !informed){
+        res.redirect('/dashboard');
+    }else{
+        const { error } = await supabase.from('tasks').update({ taskID: t_id, projectID: p_id, name: task_name, description: task_description,
+            start: start_date, due: due_date, priority: priority, risk: risk, responsible: responsible, accountable: accountable, consulted: consulted, informed: informed }).eq('taskID', t_id);
+        res.redirect(`/task?pid=${p_id}&tid=${t_id}`);
+    }
+});
 
 module.exports = router;
