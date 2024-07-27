@@ -10,7 +10,7 @@
     <div class="header">
         <h1>Task Details</h1>
     </div>
-    <p><a href="/dashboard">dashboard</a> > <a href="/project?pid=<%= projectData[0].projectID%>"><%= projectData[0].name%></a> > <a href="/task?pid=<%= projectData[0].projectID%>&tid=<%= taskData[0].taskID%>"><%= taskData[0].name%></a></p>
+    <p><a href="/">ホーム</a> > <a href="/dashboard">dashboard</a> > <a href="/project?pid=<%= projectData[0].projectID%>"><%= projectData[0].name%></a> > <a href="/task?pid=<%= projectData[0].projectID%>&tid=<%= taskData[0].taskID%>"><%= taskData[0].name%></a></p>
 
     <h2>Project Information</h2>
     <% if (projectData && projectData.length > 0) { %>
@@ -79,6 +79,7 @@
         <table border="1">
             <thead>
             <tr>
+                <th></th>
                 <th>Commenter Name</th>
                 <th>Comment</th>
                 <th>Date</th>
@@ -87,9 +88,10 @@
             <tbody>
             <% comments.forEach(function(row) { %>
                 <tr>
+                    <td><img src="https://nwqvdbypyykkzigutrlt.supabase.co/storage/v1/object/public/icons/<%= row.commenter_id%>.jpg" alt="icon" width="50px" height="50px"></td>
                     <td><%= row.commenter_name%></td>
                     <td><%= row.comment%></td>
-                    <td><%= row.created%></td>
+                    <td><%= row.created_at%></td>
                 </tr>
             <% }); %>
             </tbody>

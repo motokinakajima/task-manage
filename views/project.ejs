@@ -6,32 +6,33 @@
     <title>Project</title>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
-        google.charts.load('current', {'packages':['gantt']});
-        google.charts.setOnLoadCallback(drawChart);
 
         let tasks = <%- JSON.stringify(tasks) %>;
 
-        function daysToMilliseconds(days) {
-            return days * 24 * 60 * 60 * 1000;
-        }
+        if(tasks && tasks.length > 0){
+            google.charts.load('current', {'packages':['gantt']});
+            google.charts.setOnLoadCallback(drawChart);
 
-        console.log(tasks);
+            function daysToMilliseconds(days) {
+                return days * 24 * 60 * 60 * 1000;
+            }
 
-        function drawChart() {
+            console.log(tasks);
 
-            var data = new google.visualization.DataTable();
-            data.addColumn('string', 'Task ID');
-            data.addColumn('string', 'Task Name');
-            data.addColumn('string', 'Resource');
-            data.addColumn('date', 'Start Date');
-            data.addColumn('date', 'End Date');
-            data.addColumn('number', 'Duration');
-            data.addColumn('number', 'Percent Complete');
-            data.addColumn('string', 'Dependencies');
+            function drawChart() {
 
-            let insertData = [];
+                var data = new google.visualization.DataTable();
+                data.addColumn('string', 'Task ID');
+                data.addColumn('string', 'Task Name');
+                data.addColumn('string', 'Resource');
+                data.addColumn('date', 'Start Date');
+                data.addColumn('date', 'End Date');
+                data.addColumn('number', 'Duration');
+                data.addColumn('number', 'Percent Complete');
+                data.addColumn('string', 'Dependencies');
 
-            if (tasks && tasks.length > 0) {
+                let insertData = [];
+
                 tasks.forEach(function(row) {
                     // Parse start and end dates
                     let startDate = new Date(row.start);
@@ -62,17 +63,18 @@
                     ];
                     insertData.push(rowData);
                 });
+
+                data.addRows(insertData);
+
+                var options = {
+                    height: 275
+                };
+
+                var chart = new google.visualization.Gantt(document.getElementById('chart_div'));
+
+                chart.draw(data, options);
             }
 
-            data.addRows(insertData);
-
-            var options = {
-                height: 275
-            };
-
-            var chart = new google.visualization.Gantt(document.getElementById('chart_div'));
-
-            chart.draw(data, options);
         }
     </script>
 </head>
@@ -81,7 +83,7 @@
     <div class="header">
         <h1>Project Details</h1>
     </div>
-    <p><a href="/dashboard">dashboard</a> > <a href="/project?pid=<%= projectData[0].projectID%>"><%= projectData[0].name%></a> > </p>
+    <p><a href="/">ホーム</a> > <a href="/dashboard">dashboard</a> > <a href="/project?pid=<%= projectData[0].projectID%>"><%= projectData[0].name%></a> > </p>
 
     <h2>Project Information</h2>
     <% if (projectData && projectData.length > 0) { %>

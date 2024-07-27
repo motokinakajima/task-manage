@@ -28,7 +28,11 @@ router.get('/', async (req, res, next) => {
     }
 });
 
-router.get('/create-task', (req,res,next) => { req.session.userID? res.render('create_task') : res.redirect('/dashboard'); });
+router.get('/create-task', async (req,res,next) => {
+    const { data, error } = await supabase.from('users').select('*');
+    const namesOnly = data.map(user => ({ name: user.name }));
+    req.session.userID? res.render('create_task' ,{ users: namesOnly }) : res.redirect('/dashboard');
+});
 
 
 router.post('/create-task', async (req, res, next) => {

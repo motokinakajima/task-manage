@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Image</title>
+</head>
+<body>
+<h1>Upload Image</h1>
+<form id="upload-form">
+    <input type="file" id="image-input" accept="image/jpeg" />
+    <button type="submit">Upload</button>
+</form>
+<!-- Include Supabase JavaScript library -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const SUPABASE_URL = 'https://nwqvdbypyykkzigutrlt.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53cXZkYnlweXlra3ppZ3V0cmx0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjE5MTg5NzksImV4cCI6MjAzNzQ5NDk3OX0.Zx9I_wOhP6KjtdTuosEgLS9eeUe0VV_3WLI6r5E4cwM'; // Replace with your actual Supabase public key
+
+        // Initialize Supabase client
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        document.getElementById('upload-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const fileInput = document.getElementById('image-input');
+            const file = fileInput.files[0];
+
+            if (file) {
+                const filePath = `public/${file.name}`;
+                const { data, error } = await supabaseClient.storage
+                    .from('icons') // Use the 'icons' bucket
+                    .upload(filePath, file);
+
+                if (error) {
+                    console.error('Error uploading file:', error);
+                } else {
+                    console.log('File uploaded successfully:', data);
+                }
+            }
+        });
+    });
+</script>
+</body>
+</html>

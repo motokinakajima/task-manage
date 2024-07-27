@@ -7,6 +7,7 @@
 </head>
 <body>
 <h1>create task!</h1>
+<p><a href="/">ホーム</a></p>
 <div class="container">
     <form method="post" action="/project/create-task">
         <label for="task_name"><b>Task Name</b></label>
@@ -34,22 +35,56 @@
         <br>
 
         <label for="responsible"><b>Responsible</b></label>
-        <input type="text" placeholder="Enter Responsible Person" name="responsible" required>
+        <% if(users) { %>
+        <select name="responsible">
+            <% users.forEach( row => { %>
+            <option value="<%= row.name%>"><%= row.name %></option>
+            <% }) %>
+        </select>
+        <% } else { %>
+            <input type="text" placeholder="Enter Responsible" name="responsible" required>
+        <% } %>
         <br>
 
         <label for="accountable"><b>Accountable</b></label>
-        <input type="text" placeholder="Enter Accountable Person" name="accountable" required>
+        <%if(users) { %>
+        <select name="accountable">
+            <% users.forEach( row => { %>
+            <option value="<%= row.name%>"><%= row.name %></option>
+            <% }) %>
+        </select>
+        <% } else { %>
+            <input type="text" placeholder="Enter Accountable" name="accountable" required>
+        <% } %>
         <br>
 
         <label for="consulted"><b>Consulted</b></label>
-        <input type="text" placeholder="Enter Consulted Person" name="consulted" required>
+        <% if(users) { %>
+        <select name="consulted">
+            <% users.forEach( row => { %>
+            <option value="<%= row.name%>"><%= row.name %></option>
+            <% }) %>
+        </select>
+        <% } else { %>
+            <input type="text" placeholder="Enter Consulted" name="consulted" required>
+        <% } %>
         <br>
 
         <label for="informed"><b>Informed</b></label>
-        <input type="text" placeholder="Enter Informed Person" name="informed" required>
+        <% if(users) { %>
+        <select name="informed">
+            <% users.forEach( row => { %>
+            <option value="<%= row.name%>"><%= row.name %></option>
+            <% }) %>
+        </select>
+        <% } else { %>
+            <input type="text" placeholder="Enter Informed" name="informed" required>
+        <% } %>
+        <br>
 
         <button type="submit">submit</button>
     </form>
 </div>
 </body>
+<script>console.log(users)</script>
 </html>

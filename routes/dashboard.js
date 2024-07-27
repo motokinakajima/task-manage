@@ -14,7 +14,7 @@ router.get('/', async (req, res, next) => {
         res.redirect('/');
     }else {
         const { data: projectData, error: error } = await supabase.from('projects').select('*');
-        res.render('dashboard', { projects: projectData });
+        res.render('dashboard', { projects: projectData, userID: req.session.userID, userName: req.session.userName });
     }
 });
 

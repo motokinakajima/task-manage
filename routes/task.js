@@ -56,13 +56,15 @@ router.post('/', async (req,res,next) => {
 router.get('/edit-task', async (req, res, next) => {
     const p_id = req.query.pid;
     const t_id = req.query.tid;
-    if(!p_id || !t_id){
+    if(!p_id || !t_id || !req.session.userID){
         res.redirect('/dashboard');
     }else{
         req.session.currentProject = p_id;
         req.session.currentTask = t_id;
         const { data: taskData, error } = await supabase.from('tasks').select('*').eq('taskID', t_id);
-        res.render('edit_task', { taskData: taskData });
+        const { data, _error } = await supabase.from('users').select('*');
+        const namesOnly = data.map(user => ({ name: user.name }));
+        res.render('edit_task', { taskData: taskData, users: namesOnly });
     }
 });
 

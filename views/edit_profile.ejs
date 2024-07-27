@@ -7,24 +7,28 @@
 </head>
 <body>
 <h1>profile!</h1>
-<p><a href="/">ホーム</a></p>
 <img id="icon-image" src="<%= iconData.publicUrl%>" alt="icon" height="200px" width="200px">
+<a href="/profile/upload-icon">アイコンを編集</a>
+<form action="/profile/edit-profile" method="post">
 <table border="1">
     <thead>
     <tr>
         <th>Name</th>
         <th>mail Address</th>
         <th>ID</th>
+        <th></th>
     </tr>
     </thead>
     <tbody>
         <tr>
-            <td><%= userData[0].name%></td>
+            <td><input type="text" name="name" value="<%= userData[0].name%>"></td>
             <td><%= userData[0].email%></td>
-            <td><%= userData[0].userID %></td>
+            <td><%= userData[0].userID%><input type="hidden" name="userID" value="<%= userData[0].userID%>"></td>
+            <td><input type="submit"></td>
         </tr>
     </tbody>
 </table>
+</form>
 </body>
 <script>
     document.addEventListener("DOMContentLoaded", function() {

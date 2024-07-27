@@ -3,11 +3,14 @@ const router = express.Router();
 const sqlite3 = require('sqlite3');
 const path = require('path');
 const { createClient } = require('@supabase/supabase-js');
+const fs = require('fs');
 require('dotenv').config();
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
+
+const defaultIconPath = path.join(__dirname, '..', 'public', 'images', 'default_icon.jpg');
 
 router.get('/', (req, res, next) => {
     res.render('login');
@@ -22,7 +25,7 @@ router.post('/', async (req, res) => {
 
     const { data, error } = await supabase.from('users').select('*').eq('email', mail);
 
-    if(data[0].email == mail && data[0].password == password){
+    if(data[0].email === mail && data[0].password === password){
         req.session.userID = data[0].userID;
         req.session.userName = data[0].name;
         res.redirect('/dashboard');
@@ -55,6 +58,11 @@ router.post('/create', async (req, res) => {
         if(!error){
             req.session.userID = newUserId;
             req.session.userName = usr_name;
+            const fileBuffer = fs.readFileSync(defaultIconPath);
+            const fileName = `${newUserId}.jpg`;
+
+            const { data: uploadData, error: uploadError } = await supabase.storage.from('icons').upload(fileName, fileBuffer, { contentType: 'image/jpeg' });
+
             res.redirect("/dashboard");
         }else{
             res.send("failed");
