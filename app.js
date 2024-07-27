@@ -27,15 +27,12 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // Session configuration
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'default-secret',
+    secret: process.env.SESSION_SECRET || 'default-secret', // Use environment variable
     resave: false,
     saveUninitialized: false,
-    cookie: {
-        secure: process.env.NODE_ENV === 'production',
-        httpOnly: true,
-        sameSite: 'None',
-        maxAge: 365 * 24 * 60 * 60 * 1000
-    }
+    cookie: { secure: process.env.NODE_ENV === 'production', httpOnly: true },
+    sameSite: 'None',
+    maxAge: 24 * 60 * 60 * 1000
 }));
 
 // Set view engine
