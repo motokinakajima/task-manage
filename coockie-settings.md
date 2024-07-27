@@ -9,7 +9,6 @@ app.use(session({
 # vercel
 ```js
 app.use(session({
-    store: store, // Use the session store here
     secret: 'your-secret-key', // Replace with your secret
     resave: false,
     saveUninitialized: false,
