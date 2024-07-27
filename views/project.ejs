@@ -120,6 +120,7 @@
                 <th>accountable</th>
                 <th>consulted</th>
                 <th>informed</th>
+                <th></th>
             </tr>
             </thead>
             <tbody>
@@ -135,6 +136,7 @@
                     <td><%= row.accountable%></td>
                     <td><%= row.consulted%></td>
                     <td><%= row.informed%></td>
+                    <td><form action="/task/delete-task" method="post"><input type="hidden" name="taskID" value="<%= row.taskID %>"><button type="submit">削除</button></form></td>
                 </tr>
             <% }); %>
             </tbody>
