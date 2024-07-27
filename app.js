@@ -15,6 +15,7 @@ const projectRouter = require('./routes/project');
 const loginRouter = require('./routes/login');
 const dashboardRouter = require('./routes/dashboard');
 const taskRouter = require('./routes/task');
+const profileRouter = require('./routes/profile');
 
 // Initialize Express app
 const app = express();
@@ -30,16 +31,12 @@ app.use(session({
     secret: process.env.SESSION_SECRET || 'default-secret', // Use environment variable
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: process.env.NODE_ENV === 'production', httpOnly: true },
-    sameSite: 'None',
-    maxAge: 24 * 60 * 60 * 1000
+
 }));
 
 // Set view engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-
-console.log('Views directory:', app.get('views'));
 
 // Define routes
 app.use('/', indexRouter);
@@ -47,5 +44,6 @@ app.use('/project', projectRouter);
 app.use('/login', loginRouter);
 app.use('/dashboard', dashboardRouter);
 app.use('/task', taskRouter);
+app.use('/profile', profileRouter);
 
 module.exports = app;

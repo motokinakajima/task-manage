@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+<h1>profile!</h1>
+<p>projects should appear</p>
+<table border="1">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>mail Address</th>
+        <th>ID</th>
+    </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><%= userData[0].name%></td>
+            <td><%= userData[0].email%></td>
+            <td><%= userData[0].userID %></td>
+        </tr>
+    </tbody>
+</table>
+<br>
+<a href="/dashboard/create-project">create project</a>
+</body>
+</html>
