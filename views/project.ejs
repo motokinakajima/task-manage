@@ -90,6 +90,7 @@
             <tr>
                 <th>Project Name</th>
                 <th>description</th>
+                <th></th>
             </tr>
             </thead>
             <tbody>
@@ -97,6 +98,7 @@
                 <tr>
                     <td><a href="/project/edit-project?pid=<%= row.projectID%>"><%= row.name%></a></td>
                     <td><%= row.description%></td>
+                    <td><form action="/project/delete-project" method="post"><input type="hidden" name="projectID" value="<%= row.projectID %>"><button type="submit">削除</button></form></td>
                 </tr>
             <% }); %>
             </tbody>

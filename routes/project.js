@@ -77,4 +77,11 @@ router.post('/edit-project', async(req, res, next) => {
     }
 });
 
+router.post('/delete-project', async (req, res, next) => {
+    const projectID = req.body['projectID'];
+    const { error } = await supabase.from('projects').delete().eq('projectID', projectID);
+    const { _error } = await supabase.from('tasks').delete().eq('projectID', projectID);
+    res.redirect('/dashboard');
+})
+
 module.exports = router;
