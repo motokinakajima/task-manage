@@ -79,7 +79,7 @@
         <% files.forEach(file => { %>
             <li>
                 <span style="display: inline;">
-                    <a href="<%= file.fileUrl %>" target="_blank"><%= file.fileName %></a>
+                    <a href="<%= file.fileUrl %>" target="_blank"><%= file.fileName.replace(/^[^_]+_/, '') %></a>
                 </span>
                 <form action="/task/delete-file" method="post" style="display: inline;">
                     <input type="hidden" value="<%= file.id %>" name="fileID">

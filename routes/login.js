@@ -53,7 +53,8 @@ router.post('/create', async (req, res) => {
             }
         }
 
-        const { error } = await supabase.from('users').insert({ userID: newUserId, name: usr_name, email: mail, password: password });
+        const { error } = await supabase.from('users').insert({ 
+            userID: newUserId, name: usr_name, email: mail, password: password });
 
         if(!error){
             req.session.userID = newUserId;
