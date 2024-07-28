@@ -51,7 +51,7 @@ router.post('/upload-icon', upload.single('avatar'), async (req, res, next) => {
 
         const { error: deleteError } = await supabase.storage.from('icons').remove([fileName]);
 
-        const { data, error } = await supabase.storage.from('icons').upload(fileName, req.file.buffer, { contentType: req.file.mimeType, cacheControl: 'no-store' });
+        const { data, error } = await supabase.storage.from('icons').upload(fileName, req.file.buffer, { contentType: req.file.mimeType });
 
         res.redirect(`/profile?uid=${u_id}`);
     }
