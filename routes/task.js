@@ -76,14 +76,14 @@ router.get('/edit-task', async (req, res, next) => {
 });
 
 router.post('/edit-task', async (req, res, next) => {
-    const { task_name, task_description, start_date, due_date, priority, risk, responsible, accountable, consulted, informed} = req.body;
+    const { task_name, task_description, start_date, due_date, priority, risk, responsible, accountable, consulted, informed, progress} = req.body;
     const p_id = req.session.currentProject;
     const t_id = req.session.currentTask;
-    if(!p_id || !t_id || !task_name || !task_description || !start_date || !due_date || !priority || !risk || !responsible || !accountable || !consulted || !informed){
+    if(!p_id || !t_id || !task_name || !task_description || !start_date || !due_date || !priority || !risk || !responsible || !accountable || !consulted || !informed || !progress){
         res.redirect('/dashboard');
     }else{
         const { error } = await supabase.from('tasks').update({ taskID: t_id, projectID: p_id, name: task_name, description: task_description,
-            start: start_date, due: due_date, priority: priority, risk: risk, responsible: responsible, accountable: accountable, consulted: consulted, informed: informed }).eq('taskID', t_id);
+            start: start_date, due: due_date, priority: priority, risk: risk, responsible: responsible, accountable: accountable, consulted: consulted, informed: informed, completion: progress }).eq('taskID', t_id);
         res.redirect(`/task?pid=${p_id}&tid=${t_id}`);
     }
 });

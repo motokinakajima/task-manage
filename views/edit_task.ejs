@@ -37,7 +37,7 @@
         <% if(users) { %>
             <select name="responsible">
                 <% users.forEach( row => { %>
-                    <option value="<%= row.name%>"><%= row.name %></option>
+                    <option value="<%= row.name%>" <%= row.name === taskData[0].responsible ? 'selected' : '' %>><%= row.name %></option>
                 <% }) %>
             </select>
         <% } else { %>
@@ -49,7 +49,7 @@
         <%if(users) { %>
             <select name="accountable">
                 <% users.forEach( row => { %>
-                    <option value="<%= row.name%>"><%= row.name %></option>
+                    <option value="<%= row.name%>" <%= row.name === taskData[0].accountable ? 'selected' : '' %>><%= row.name %></option>
                 <% }) %>
             </select>
         <% } else { %>
@@ -61,7 +61,7 @@
         <% if(users) { %>
             <select name="consulted">
                 <% users.forEach( row => { %>
-                    <option value="<%= row.name%>"><%= row.name %></option>
+                    <option value="<%= row.name%>" <%= row.name === taskData[0].consulted ? 'selected' : '' %>><%= row.name %></option>
                 <% }) %>
             </select>
         <% } else { %>
@@ -73,12 +73,20 @@
         <% if(users) { %>
             <select name="informed">
                 <% users.forEach( row => { %>
-                    <option value="<%= row.name%>"><%= row.name %></option>
+                    <option value="<%= row.name%>" <%= row.name === taskData[0].informed ? 'selected' : '' %>><%= row.name %></option>
                 <% }) %>
             </select>
         <% } else { %>
             <input type="text" placeholder="Enter Informed" name="informed" required>
         <% } %>
+        <br>
+
+        <label for="progress"><b>Progress</b></label>
+        <select name="progress">
+            <option value="-1" <%= taskData[0].completion === -1 ? 'selected' : ''%>>not started</option>
+            <option value="0" <%= taskData[0].completion === 0 ? 'selected' : ''%>>in progress</option>
+            <option value="1" <%= taskData[0].completion === 1 ? 'selected' : ''%>>finished</option>
+        </select>
         <br>
 
         <button type="submit">submit</button>

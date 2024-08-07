@@ -49,6 +49,7 @@
                 <th>accountable</th>
                 <th>consulted</th>
                 <th>informed</th>
+                <th>progress</th>
                 <th></th>
             </tr>
             </thead>
@@ -65,6 +66,15 @@
                     <td><%= row.accountable%></td>
                     <td><%= row.consulted%></td>
                     <td><%= row.informed%></td>
+                    <td>
+                        <% if(row.completion === 1){ %>
+                            finished
+                        <% } else if(row.completion === 0){ %>
+                            in progress
+                        <% } else { %>
+                            not started
+                        <% } %>
+                    </td>
                     <td><form action="/task/delete-task" method="post"><input type="hidden" name="taskID" value="<%= row.taskID %>"><button type="submit">削除</button></form></td>
                 </tr>
             <% }); %>
