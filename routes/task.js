@@ -15,7 +15,8 @@ const upload = multer({ storage: storage });
 
 router.get('/', async (req,res,next) => {
     const t_id = req.query.tid;
-    const p_id = req.query.pid;
+    const { data: projectID, error } = await supabase.from('tasks').select('projectID').eq('taskID', t_id);
+    const p_id = projectID[0]['projectID'];
     if(!t_id || !p_id){
         res.redirect('/dashboard');
     }else {
@@ -56,8 +57,13 @@ router.post('/', async (req,res,next) => {
             taskData: taskData,
             comments: commentData
         }
-        res.redirect(`/task?pid=${p_id}&tid=${t_id}`);
+        res.redirect(`/task?tid=${t_id}`);
     }
+});
+
+router.get('/tasks', async (req,res,next) => {
+    const { data: taskData, error } = await supabase.from('tasks').select('*');
+    res.render('tasks', { taskData });
 });
 
 router.get('/edit-task', async (req, res, next) => {
@@ -84,7 +90,7 @@ router.post('/edit-task', async (req, res, next) => {
     }else{
         const { error } = await supabase.from('tasks').update({ taskID: t_id, projectID: p_id, name: task_name, description: task_description,
             start: start_date, due: due_date, priority: priority, risk: risk, responsible: responsible, accountable: accountable, consulted: consulted, informed: informed, completion: progress }).eq('taskID', t_id);
-        res.redirect(`/task?pid=${p_id}&tid=${t_id}`);
+        res.redirect(`/task?tid=${t_id}`);
     }
 });
 
@@ -121,7 +127,7 @@ router.post('/upload-file', upload.single('taskFile'), async(req, res, next) => 
     const fileUrl = `${supabaseUrl}/storage/v1/object/public/${data.fullPath}`;
     const { error: dbError } = await supabase.from('task_files').insert({ taskID: taskID , fileName: fileName , fileUrl: fileUrl });
 
-    res.redirect(`/task?pid=${p_id}&tid=${taskID}`);
+    res.redirect(`/task?tid=${taskID}`);
 });
 
 router.post('/delete-file', async (req, res, next) => {
@@ -140,6 +146,6 @@ router.post('/delete-file', async (req, res, next) => {
 
     const { _error } = await supabase.from('task_files').delete().eq('id', fileID);
 
-    res.redirect(`/task?pid=${req.session.currentProject}&tid=${req.session.currentTask}`);
+    res.redirect(`/task?tid=${req.session.currentTask}`);
 });
 module.exports = router;

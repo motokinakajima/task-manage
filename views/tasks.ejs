@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Management</title>
+    <script>
+        function filterTasks() {
+            let filterValue = document.getElementById('taskFilter').value;
+            let table = document.getElementById('taskTable');
+            let rows = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < rows.length; i++) {
+                let completionValue = rows[i].getElementsByTagName('td')[10].dataset.completion;
+                if (filterValue === 'all' || filterValue === completionValue) {
+                    rows[i].style.display = '';
+                } else {
+                    rows[i].style.display = 'none';
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+<h2>Filter Tasks</h2>
+<label for="taskFilter">Show tasks:</label>
+<select id="taskFilter" onchange="filterTasks()">
+    <option value="all">All</option>
+    <option value="-1">Not started</option>
+    <option value="0">In progress</option>
+    <option value="1">Finished</option>
+</select>
+
+<h2>Task Data</h2>
+<% if (taskData && taskData.length > 0) { %>
+    <table id="taskTable" border="1">
+        <thead>
+        <tr>
+            <th>Task Name</th>
+            <th>Description</th>
+            <th>Created Date</th>
+            <th>Due Date</th>
+            <th>Priority</th>
+            <th>Risk</th>
+            <th>Responsible</th>
+            <th>Accountable</th>
+            <th>Consulted</th>
+            <th>Informed</th>
+            <th>Progress</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <% taskData.forEach(function(row) { %>
+            <tr>
+                <td><a href="/task/edit-task?tid=<%= row.taskID %>"><%= row.name %></a></td>
+                <td><%= row.description %></td>
+                <td><%= row.created_at %></td>
+                <td><%= row.due %></td>
+                <td><%= row.priority %></td>
+                <td><%= row.risk %></td>
+                <td><%= row.responsible %></td>
+                <td><%= row.accountable %></td>
+                <td><%= row.consulted %></td>
+                <td><%= row.informed %></td>
+                <td data-completion="<%= row.completion %>">
+                    <% if (row.completion === 1) { %>
+                        Finished
+                    <% } else if (row.completion === 0) { %>
+                        In progress
+                    <% } else { %>
+                        Not started
+                    <% } %>
+                </td>
+                <td>
+                    <form action="/task/delete-task" method="post">
+                        <input type="hidden" name="taskID" value="<%= row.taskID %>">
+                        <button type="submit">削除</button>
+                    </form>
+                </td>
+            </tr>
+        <% }); %>
+        </tbody>
+    </table>
+<% } else { %>
+    <p>No taskData available for this project.</p>
+<% } %>
+</body>
+</html>

@@ -56,7 +56,7 @@
             <tbody>
             <% taskData.forEach(function(row) { %>
                 <tr>
-                    <td><a href="/task/edit-task?pid=<%= projectData[0].projectID%>&tid=<%= row.taskID%>"><%= row.name%></a></td>
+                    <td><a href="/task/edit-task?tid=<%= row.taskID%>"><%= row.name%></a></td>
                     <td><%= row.description%></td>
                     <td><%= row.created_at%></td>
                     <td><%= row.due%></td>
