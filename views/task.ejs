@@ -1,146 +1,131 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project</title>
+    <link href="/stylesheets/style.css" rel="stylesheet">
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <title>Document</title>
 </head>
+
 <body>
-<div class="container">
-    <div class="header">
-        <h1>Task Details</h1>
-    </div>
-    <p><a href="/">ホーム</a> > <a href="/dashboard">dashboard</a> > <a href="/project?pid=<%= projectData[0].projectID%>"><%= projectData[0].name%></a> > <a href="/task?pid=<%= projectData[0].projectID%>&tid=<%= taskData[0].taskID%>"><%= taskData[0].name%></a></p>
+    <div class="container">
+        <div class="sidebar">
+            <img src="/images/hayabusa2.png" alt="icon">
+            <% if(userID) { %>
+                <ul>
+                    <a href="/"><li>ホーム</li></a>
+                    <a href="/dashboard"><li>ダッシュボード</li></a>
+                    <a href="/task/tasks"><li>タスク一覧</li></a>
+                    <a href=""><li>ファイル一覧</li></a>
+                    <a href="/profile?uid=<%= userID %>"><li>マイページ</li></a>
+                    <a href="/login/logout"><li>ログアウト</li></a>
+                </ul>
+            <% }else { %>
+                <ul>
+                    <a href="/"><li>ホーム</li></a>
+                    <a href="/login"><li>ログイン</li></a>
+                    <a href="/login/create"><li>アカウント作成</li></a>
+                </ul>
+            <% } %>
+        </div>
 
-    <h2>Project Information</h2>
-    <% if (projectData && projectData.length > 0) { %>
-        <table border="1">
-            <thead>
-            <tr>
-                <th>Project Name</th>
-                <th>description</th>
-            </tr>
-            </thead>
-            <tbody>
-            <% projectData.forEach(function(row) { %>
-                <tr>
-                    <td><a href="/project?pid=<%= row.projectID%>"><%= row.name%></a></td>
-                    <td><%= row.description%></td>
-                </tr>
-            <% }); %>
-            </tbody>
-        </table>
-    <% } else { %>
-        <p>No project data available.</p>
-    <% } %>
+        <div class="content">
+            <div class="header">
+                <h1>タスク情報</h1>
+            </div>
 
-    <h2>taskData</h2>
-    <% if (taskData && taskData.length > 0) { %>
-        <table border="1">
-            <thead>
-            <tr>
-                <th>Task Name</th>
-                <th>description</th>
-                <th>created date</th>
-                <th>due date</th>
-                <th>priority</th>
-                <th>risk</th>
-                <th>responsible</th>
-                <th>accountable</th>
-                <th>consulted</th>
-                <th>informed</th>
-                <th>progress</th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>
-            <% taskData.forEach(function(row) { %>
-                <tr>
-                    <td><a href="/task/edit-task?tid=<%= row.taskID%>"><%= row.name%></a></td>
-                    <td><%= row.description%></td>
-                    <td><%= row.created_at%></td>
-                    <td><%= row.due%></td>
-                    <td><%= row.priority%></td>
-                    <td><%= row.risk%></td>
-                    <td><%= row.responsible%></td>
-                    <td><%= row.accountable%></td>
-                    <td><%= row.consulted%></td>
-                    <td><%= row.informed%></td>
-                    <td>
-                        <% if(row.completion === 1){ %>
-                            finished
-                        <% } else if(row.completion === 0){ %>
-                            in progress
-                        <% } else { %>
-                            not started
-                        <% } %>
-                    </td>
-                    <td><form action="/task/delete-task" method="post"><input type="hidden" name="taskID" value="<%= row.taskID %>"><button type="submit">削除</button></form></td>
-                </tr>
-            <% }); %>
-            </tbody>
-        </table>
-    <% } else { %>
-        <p>No taskData available for this project.</p>
-    <% } %>
+            <div class="breadcrumb">
+                <a href="/">ホーム</a>
+                <span>></span>
+                <a href="/dashboard">ダッシュボード</a>
+                <span>></span>
+                <a href="/project?pid=<%= projectData[0].projectID%>"><%= projectData[0].name %></a>
+                <span>></span>
+                <span><%= taskData[0].name %></span>
+            </div>
 
-    <h2>Attached Files</h2>
-    <ul>
-        <% files.forEach(file => { %>
-            <li>
-                <span style="display: inline;">
-                    <a href="<%= file.fileUrl %>" target="_blank"><%= file.fileName.replace(/^[^_]+_/, '') %></a>
-                </span>
-                <form action="/task/delete-file" method="post" style="display: inline;">
-                    <input type="hidden" value="<%= file.id %>" name="fileID">
-                    <input type="hidden" value="<%= taskData.taskID %>" name="taskID">
-                    <button type="submit">削除</button>
+            <div class="section">
+                <h2><%= projectData[0].name %></h2>
+                <p><%= projectData[0].description %></p>
+            </div>
+
+            <div class="section">
+                <h2><%= taskData[0].name %></h2>
+                <p>
+                    概要：<%= taskData[0].description %><br>
+                    作成日：<%= taskData[0].created_at %><br>
+                    期限：<%= taskData[0].due %><br>
+                    優先度：<%= taskData[0].priority %><br>
+                    リスク：<%= taskData[0].risk %><br>
+                    Responsible：<%= taskData[0].responsible %><br>
+                    Accountable：<%= taskData[0].accountable %><br>
+                    Consulted：<%= taskData[0].consulted %><br>
+                    Informed：<%= taskData[0].informed %><br>
+                    進行度：<% if(taskData[0].completion === 1){ %>
+                        完了
+                    <% } else if(taskData[0].completion === 0){ %>
+                        作業中
+                    <% } else { %>
+                        始まってすらいない
+                    <% } %>
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>添付ファイル</h2>
+                <% if(files && files.length > 0) { %>
+                <% files.forEach(file => { %>
+                    <li>
+                        <span style="display: inline;">
+                            <a href="<%= file.fileUrl %>" target="_blank"><%= file.fileName.replace(/^[^_]+_/, '') %></a>
+                        </span>
+                        <form action="/task/delete-file" method="post" style="display: inline;">
+                            <input type="hidden" value="<%= file.id %>" name="fileID">
+                            <input type="hidden" value="<%= taskData.taskID %>" name="taskID">
+                            <button type="submit">削除</button>
+                        </form>
+                    </li>
+                <% }) %>
+                <% }else { %>
+                    <p>まだ添付ファイルはありません</p>
+                <% } %>
+            </div>
+
+            <div class="section">
+                <h2>ファイルアップロード</h2>
+                <form method="post" enctype="multipart/form-data" action="/task/upload-file">
+                    <div class="file-upload">
+                        <input type="hidden" name="taskID" value="<%= taskData[0].taskID %>">
+                        <input type="file" name="taskFile" accept=".docx,.xlsx,.pdf" required>
+                        <button type="submit">Upload File</button>
+                    </div>
                 </form>
-            </li>
-        <% }) %>
-    </ul>
+            </div>
 
-    <form method="post" enctype="multipart/form-data" action="/task/upload-file">
-        <input type="hidden" name="taskID" value="<%= taskData[0].taskID %>">
-        <input type="file" name="taskFile" accept=".docx,.xlsx,.pdf" required>
-        <button type="submit">Upload File</button>
-    </form>
+            <div class="section">
+                <h2>コメント</h2>
+                <% if (comments && comments.length > 0) { %>
+                    <ul class="comments">
+                    <% comments.forEach(row => { %>
+                        <li>
+                            <div><img src="https://nwqvdbypyykkzigutrlt.supabase.co/storage/v1/object/public/icons/<%= row.commenter_id%>.jpg" alt="icon"><br><%= row.commenter_name%></div>
+                            <div><%= row.comment %></div>
+                            <div><%= row.created_at %></div>
+                        </li>
+                    <% }) %>
+                    </ul>
+                <% } else { %>
+                    <p>コメントはまだありません</p>
+                <% } %>
 
-    <h2>Comments</h2>
-    <% if (comments && comments.length > 0) { %>
-        <table border="1">
-            <thead>
-            <tr>
-                <th></th>
-                <th>Commenter Name</th>
-                <th>Comment</th>
-                <th>Date</th>
-            </tr>
-            </thead>
-            <tbody>
-            <% comments.forEach(function(row) { %>
-                <tr>
-                    <td><img src="https://nwqvdbypyykkzigutrlt.supabase.co/storage/v1/object/public/icons/<%= row.commenter_id%>.jpg" alt="icon" width="50px" height="50px"></td>
-                    <td><%= row.commenter_name%></td>
-                    <td><%= row.comment%></td>
-                    <td><%= row.created_at%></td>
-                </tr>
-            <% }); %>
-            </tbody>
-        </table>
-    <% } else { %>
-        <p>No comments available for this project.</p>
-    <% } %>
-</div>
-<br>
-<div class="container">
-    <form method="post" action="/task/">
-        <label for="comment"><b>Send comment</b></label>
-        <input type="text" placeholder="Enter comment" name="comment" required>
-        <br>
-
-        <button type="submit">comment</button>
-    </form>
-</div>
+                <form method="post" action="/task/">
+                    <label for="comment"><b>コメントを送信</b></label>
+                    <input type="text" placeholder="コメントを入力" name="comment" required>
+                    <br>
+                    <button type="submit">投稿</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </body>
-</html>

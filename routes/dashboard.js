@@ -14,11 +14,11 @@ router.get('/', async (req, res, next) => {
         res.redirect('/');
     }else {
         const { data: projectData, error: error } = await supabase.from('projects').select('*');
-        res.render('dashboard', { projects: projectData, userID: req.session.userID, userName: req.session.userName });
+        res.render('dashboard', { projects: projectData, userID: req.session.userID, userName: req.session.userName, userID: req.session.userID });
     }
 });
 
-router.get('/create-project', (req,res,next) => { req.session.userID? res.render('create_project') : res.redirect('/dashboard'); });
+router.get('/create-project', (req,res,next) => { req.session.userID? res.render('create_project', { userID: req.session.userID }) : res.redirect('/dashboard'); });
 
 router.post('/create-project', async (req, res, next) => {
     const { project_name, project_description } = req.body;

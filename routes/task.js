@@ -32,7 +32,8 @@ router.get('/', async (req,res,next) => {
             projectData: projectData,
             taskData: taskData,
             comments: commentData,
-            files: files
+            files: files,
+            userID: req.session.userID
         }
 
         res.render('task', returnData);
@@ -63,7 +64,7 @@ router.post('/', async (req,res,next) => {
 
 router.get('/tasks', async (req,res,next) => {
     const { data: taskData, error } = await supabase.from('tasks').select('*');
-    res.render('tasks', { taskData });
+    res.render('tasks', { taskData: taskData, userID: req.session.userID });
 });
 
 router.get('/edit-task', async (req, res, next) => {
@@ -77,7 +78,7 @@ router.get('/edit-task', async (req, res, next) => {
         const { data: taskData, error } = await supabase.from('tasks').select('*').eq('taskID', t_id);
         const { data, _error } = await supabase.from('users').select('*');
         const namesOnly = data.map(user => ({ name: user.name }));
-        res.render('edit_task', { taskData: taskData, users: namesOnly });
+        res.render('edit_task', { taskData: taskData, users: namesOnly, userID: req.session.userID });
     }
 });
 

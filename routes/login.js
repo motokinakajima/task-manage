@@ -13,11 +13,11 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 const defaultIconPath = path.join(__dirname, '..', 'public', 'images', 'default_icon.jpg');
 
 router.get('/', (req, res, next) => {
-    res.render('login');
+    res.render('login', { userID: req.session.userID });
 });
 
 router.get('/create', (req, res) => {
-    res.render('create_account');
+    res.render('create_account', { userID: req.session.userID });
 });
 
 router.post('/', async (req, res) => {
@@ -32,6 +32,11 @@ router.post('/', async (req, res) => {
     }else{
         res.redirect('/login');
     }
+});
+
+router.get('/logout', (req, res, next) => {
+    req.session.userID = null;
+    res.redirect('/');
 });
 
 router.post('/create', async (req, res) => {

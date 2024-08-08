@@ -3,88 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/stylesheets/style.css" rel="stylesheet">
     <title>Document</title>
 </head>
 <body>
-<h1>create task!</h1>
-<p><a href="/">ホーム</a></p>
 <div class="container">
-    <form method="post" action="/project/create-task">
-        <label for="task_name"><b>Task Name</b></label>
-        <input type="text" placeholder="Enter Task Name" name="task_name" required>
-        <br>
-
-        <label for="task_description"><b>Task Description</b></label>
-        <input type="text" placeholder="Enter Task Description" name="task_description" required>
-        <br>
-
-        <label for="start_date"><b>Start Date</b></label>
-        <input type="date" placeholder="Enter Start Date" name="start_date" required>
-        <br>
-
-        <label for="due_date"><b>Due Date</b></label>
-        <input type="date" placeholder="Enter Due Date" name="due_date" required>
-        <br>
-
-        <label for="priority"><b>Priority</b></label>
-        <input type="text" placeholder="Enter Priority" name="priority" required>
-        <br>
-
-        <label for="risk"><b>Risk</b></label>
-        <input type="text" placeholder="Enter Risk" name="risk" required>
-        <br>
-
-        <label for="responsible"><b>Responsible</b></label>
-        <% if(users) { %>
-        <select name="responsible">
-            <% users.forEach( row => { %>
-            <option value="<%= row.name%>"><%= row.name %></option>
-            <% }) %>
-        </select>
-        <% } else { %>
-            <input type="text" placeholder="Enter Responsible" name="responsible" required>
+    <div class="sidebar">
+        <img src="/images/hayabusa2.png" alt="icon">
+        <% if(userID) { %>
+            <ul>
+                <a href="/"><li>ホーム</li></a>
+                <a href="/dashboard"><li>ダッシュボード</li></a>
+                <a href="/task/tasks"><li>タスク一覧</li></a>
+                <a href=""><li>ファイル一覧</li></a>
+                <a href="/profile?uid=<%= userID %>"><li>マイページ</li></a>
+                <a href="/login/logout"><li>ログアウト</li></a>
+            </ul>
+        <% }else { %>
+            <ul>
+                <a href="/"><li>ホーム</li></a>
+                <a href="/login"><li>ログイン</li></a>
+                <a href="/login/create"><li>アカウント作成</li></a>
+            </ul>
         <% } %>
-        <br>
-
-        <label for="accountable"><b>Accountable</b></label>
-        <%if(users) { %>
-        <select name="accountable">
-            <% users.forEach( row => { %>
-            <option value="<%= row.name%>"><%= row.name %></option>
-            <% }) %>
-        </select>
-        <% } else { %>
-            <input type="text" placeholder="Enter Accountable" name="accountable" required>
-        <% } %>
-        <br>
-
-        <label for="consulted"><b>Consulted</b></label>
-        <% if(users) { %>
-        <select name="consulted">
-            <% users.forEach( row => { %>
-            <option value="<%= row.name%>"><%= row.name %></option>
-            <% }) %>
-        </select>
-        <% } else { %>
-            <input type="text" placeholder="Enter Consulted" name="consulted" required>
-        <% } %>
-        <br>
-
-        <label for="informed"><b>Informed</b></label>
-        <% if(users) { %>
-        <select name="informed">
-            <% users.forEach( row => { %>
-            <option value="<%= row.name%>"><%= row.name %></option>
-            <% }) %>
-        </select>
-        <% } else { %>
-            <input type="text" placeholder="Enter Informed" name="informed" required>
-        <% } %>
-        <br>
-
-        <button type="submit">submit</button>
-    </form>
+    </div>
+    <div class="content">
+        <div class="section">
+            <h2>タスク作成</h2>
+            <form method="post" action="/project/create-task">
+                <label for="task_name"><b>Task Name</b></label>
+                <input type="text" placeholder="Enter Task Name" name="task_name" required>
+                <br>
+        
+                <label for="task_description"><b>Task Description</b></label>
+                <input type="text" placeholder="Enter Task Description" name="task_description" required>
+                <br>
+        
+                <label for="start_date"><b>Start Date</b></label>
+                <input type="date" placeholder="Enter Start Date" name="start_date" required>
+                <br>
+        
+                <label for="due_date"><b>Due Date</b></label>
+                <input type="date" placeholder="Enter Due Date" name="due_date" required>
+                <br>
+        
+                <label for="priority"><b>Priority</b></label>
+                <input type="text" placeholder="Enter Priority" name="priority" required>
+                <br>
+        
+                <label for="risk"><b>Risk</b></label>
+                <input type="text" placeholder="Enter Risk" name="risk" required>
+                <br>
+        
+                <label for="responsible"><b>Responsible</b></label>
+                <% if(users) { %>
+                <select name="responsible">
+                    <% users.forEach( row => { %>
+                    <option value="<%= row.name%>"><%= row.name %></option>
+                    <% }) %>
+                </select>
+                <% } else { %>
+                    <input type="text" placeholder="Enter Responsible" name="responsible" required>
+                <% } %>
+                <br>
+        
+                <label for="accountable"><b>Accountable</b></label>
+                <%if(users) { %>
+                <select name="accountable">
+                    <% users.forEach( row => { %>
+                    <option value="<%= row.name%>"><%= row.name %></option>
+                    <% }) %>
+                </select>
+                <% } else { %>
+                    <input type="text" placeholder="Enter Accountable" name="accountable" required>
+                <% } %>
+                <br>
+        
+                <label for="consulted"><b>Consulted</b></label>
+                <% if(users) { %>
+                <select name="consulted">
+                    <% users.forEach( row => { %>
+                    <option value="<%= row.name%>"><%= row.name %></option>
+                    <% }) %>
+                </select>
+                <% } else { %>
+                    <input type="text" placeholder="Enter Consulted" name="consulted" required>
+                <% } %>
+                <br>
+        
+                <label for="informed"><b>Informed</b></label>
+                <% if(users) { %>
+                <select name="informed">
+                    <% users.forEach( row => { %>
+                    <option value="<%= row.name%>"><%= row.name %></option>
+                    <% }) %>
+                </select>
+                <% } else { %>
+                    <input type="text" placeholder="Enter Informed" name="informed" required>
+                <% } %>
+                <br>
+        
+                <button type="submit">submit</button>
+            </form>
+        </div>
+    </div>
 </div>
 </body>
-<script>console.log(users)</script>
 </html>

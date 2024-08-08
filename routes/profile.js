@@ -19,11 +19,11 @@ router.get('/', async (req, res, next) => {
     }else if(u_id === req.session.userID){
         const { data: userData, error } = await supabase.from('users').select('*').eq('userID', u_id);
         const { data: iconData, _error } = supabase.storage.from('icons').getPublicUrl(`${u_id}.jpg`);
-        res.render('edit_profile', { userData: userData, iconData: iconData });
+        res.render('edit_profile', { userData: userData, iconData: iconData, userID: req.session.userID });
     }else{
         const { data: userData, error } = await supabase.from('users').select('*').eq('userID', u_id);
         const { data: iconData, _error } = supabase.storage.from('icons').getPublicUrl(`${u_id}.jpg`);
-        res.render('profile', { userData: userData, iconData: iconData });
+        res.render('profile', { userData: userData, iconData: iconData, userID: req.session.userID });
     }
 })
 
@@ -39,7 +39,7 @@ router.post('/edit-profile', async (req, res, next) => {
 });
 
 router.get('/upload-icon', async (req, res, next) => {
-    res.render('upload_icon');
+    res.render('upload_icon', { userID: req.session.userID });
 });
 
 router.post('/upload-icon', upload.single('avatar'), async (req, res, next) => {
@@ -61,7 +61,7 @@ router.get('/get-icon', async (req, res, next) => {
     const u_id = req.query.uid;
     const { data, error } = supabase.storage.from('icons').getPublicUrl(`${u_id}.jpg`);
     console.log(error);
-    res.send(data);
+    res.render('upload_icon', { userID: req.session.userID })
 });
 
 module.exports = router;

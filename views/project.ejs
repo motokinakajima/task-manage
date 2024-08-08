@@ -1,157 +1,173 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project</title>
-    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-    <script type="text/javascript">
-
-        let tasks = <%- JSON.stringify(tasks) %>;
-
-        if(tasks && tasks.length > 0){
-            google.charts.load('current', {'packages':['gantt']});
-            google.charts.setOnLoadCallback(drawChart);
-
-            function daysToMilliseconds(days) {
-                return days * 24 * 60 * 60 * 1000;
-            }
-
-            console.log(tasks);
-
-            function drawChart() {
-
-                var data = new google.visualization.DataTable();
-                data.addColumn('string', 'Task ID');
-                data.addColumn('string', 'Task Name');
-                data.addColumn('string', 'Resource');
-                data.addColumn('date', 'Start Date');
-                data.addColumn('date', 'End Date');
-                data.addColumn('number', 'Duration');
-                data.addColumn('number', 'Percent Complete');
-                data.addColumn('string', 'Dependencies');
-
-                let insertData = [];
-
-                tasks.forEach(function(row) {
-                    // Parse start and end dates
-                    let startDate = new Date(row.start);
-                    let endDate = new Date(row.due);
-
-                    // Validate dates
-                    if (isNaN(startDate.getTime())) {
-                        console.error('Invalid start date:', row.start);
-                        startDate = new Date(); // Default to current date if invalid
-                    }
-
-                    if (isNaN(endDate.getTime())) {
-                        console.error('Invalid end date:', row.due);
-                        endDate = new Date(); // Default to current date if invalid
-                    }
-
-                    // Ensure duration is valid
-                    let duration = endDate >= startDate ? (endDate - startDate) / (1000 * 60 * 60 * 24) : 0; // Duration in days
-                    let rowData = [
-                        row.taskID ? row.taskID.toString() : '',
-                        row.name || 'Unnamed Task',
-                        row.description || 'No Description',
-                        startDate,
-                        endDate,
-                        duration * 24 * 60 * 60 * 1000, // Convert duration to milliseconds
-                        0, // Percent Complete
-                        '' // No dependencies
-                    ];
-                    insertData.push(rowData);
-                });
-
-                data.addRows(insertData);
-
-                var options = {
-                    height: 275
-                };
-
-                var chart = new google.visualization.Gantt(document.getElementById('chart_div'));
-
-                chart.draw(data, options);
-            }
-
-        }
-    </script>
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="/stylesheets/style.css" rel="stylesheet">
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+        <title>Document</title>
+    </head>    
 <body>
-<div class="container">
-    <div class="header">
-        <h1>Project Details</h1>
+    <div class="container">
+        <div class="sidebar">
+            <img src="/images/hayabusa2.png" alt="icon">
+            <% if(userID) { %>
+                <ul>
+                    <a href="/"><li>ホーム</li></a>
+                    <a href="/dashboard"><li>ダッシュボード</li></a>
+                    <a href="/task/tasks"><li>タスク一覧</li></a>
+                    <a href=""><li>ファイル一覧</li></a>
+                    <a href="/profile?uid=<%= userID %>"><li>マイページ</li></a>
+                    <a href="/login/logout"><li>ログアウト</li></a>
+                </ul>
+            <% }else { %>
+                <ul>
+                    <a href="/"><li>ホーム</li></a>
+                    <a href="/login"><li>ログイン</li></a>
+                    <a href="/login/create"><li>アカウント作成</li></a>
+                </ul>
+            <% } %>
+        </div>
+
+        <div class="content">
+            <div class="header">
+                <h1>プロジェクト情報</h1>
+            </div>
+
+            <div class="breadcrumb">
+                <a href="/">ホーム</a>
+                <span>></span>
+                <a href="/dashboard">ダッシュボード</a>
+                <span>></span>
+                <span><%= projectData[0].name %></span>
+            </div>
+
+            <div class="section">
+                <h2><%= projectData[0].name %></h2>
+                <p><%= projectData[0].description %></p>
+            </div>
+
+            <div class="section">
+                <h2>タスク一覧</h2>
+                <% if(tasks && tasks.length > 0) { %>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>タスク名</th>
+                            <th>概要</th>
+                            <th>期限</th>
+                            <th>責任者</th>
+                            <th>進行度</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% tasks.forEach(row => { %>
+                            <tr>
+                                <td><a href="/task?tid=<%= row.taskID%>"><%= row.name %></a></td>
+                                <td><%= row.description %></td>
+                                <td><%= row.due %></td>
+                                <td><%= row.responsible %></td>
+                                <td><% if(row.completion === 1){ %>
+                                    完了
+                                <% } else if(row.completion === 0){ %>
+                                    作業中
+                                <% } else { %>
+                                    始まってすらいない
+                                <% } %></td>
+                                <td><form action="/task/delete-task" method="post"><input type="hidden" name="taskID" value="<%= row.taskID%>"><button type="submit">削除</button></form></td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+                <form action="/project/create-task" method="get"><button type="submit">タスクを作成</button></form>
+                <div id="chart_div"></div>
+                <% }else { %>
+                    <p>このプロジェクトにはまだタスクは割り振られていません</p>
+                    <form action="/project/create-task" method="get"><button type="submit">タスクを作成</button></form>
+                <% } %>
+            </div>
+        </div>
     </div>
-    <p><a href="/">ホーム</a> > <a href="/dashboard">dashboard</a> > <a href="/project?pid=<%= projectData[0].projectID%>"><%= projectData[0].name%></a> > </p>
-
-    <h2>Project Information</h2>
-    <% if (projectData && projectData.length > 0) { %>
-        <table border="1">
-            <thead>
-            <tr>
-                <th>Project Name</th>
-                <th>description</th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>
-            <% projectData.forEach(function(row) { %>
-                <tr>
-                    <td><a href="/project/edit-project?pid=<%= row.projectID%>"><%= row.name%></a></td>
-                    <td><%= row.description%></td>
-                    <td><form action="/project/delete-project" method="post"><input type="hidden" name="projectID" value="<%= row.projectID %>"><button type="submit">削除</button></form></td>
-                </tr>
-            <% }); %>
-            </tbody>
-        </table>
-    <% } else { %>
-        <p>No project data available.</p>
-    <% } %>
-
-    <h2>tasks</h2>
-    <% if (tasks && tasks.length > 0) { %>
-        <table border="1">
-            <thead>
-            <tr>
-                <th>Task Name</th>
-                <th>description</th>
-                <th>created date</th>
-                <th>due date</th>
-                <th>priority</th>
-                <th>risk</th>
-                <th>responsible</th>
-                <th>accountable</th>
-                <th>consulted</th>
-                <th>informed</th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>
-            <% tasks.forEach(function(row) { %>
-                <tr>
-                    <td><a href="/task?tid=<%= row.taskID%>"><%= row.name%></a></td>
-                    <td><%= row.description%></td>
-                    <td><%= row.created_at%></td>
-                    <td><%= row.due%></td>
-                    <td><%= row.priority%></td>
-                    <td><%= row.risk%></td>
-                    <td><%= row.responsible%></td>
-                    <td><%= row.accountable%></td>
-                    <td><%= row.consulted%></td>
-                    <td><%= row.informed%></td>
-                    <td><form action="/task/delete-task" method="post"><input type="hidden" name="taskID" value="<%= row.taskID %>"><button type="submit">削除</button></form></td>
-                </tr>
-            <% }); %>
-            </tbody>
-        </table>
-    <% } else { %>
-        <p>No tasks available for this project.</p>
-    <% } %>
-
-    <div id="chart_div"></div>
-</div>
-<br>
-<a href="/project/create-task">create task</a>
 </body>
+
+
+<script type="text/javascript">
+    let tasks = <%- JSON.stringify(tasks) %>;
+
+    google.charts.load('current', {'packages': ['gantt']});
+    google.charts.setOnLoadCallback(drawChart);
+
+    function daysToMilliseconds(days) {
+        return days * 24 * 60 * 60 * 1000;
+    }
+
+    function drawChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Task ID');
+        data.addColumn('string', 'Task Name');
+        data.addColumn('string', 'Resource');
+        data.addColumn('date', 'Start Date');
+        data.addColumn('date', 'End Date');
+        data.addColumn('number', 'Duration');
+        data.addColumn('number', 'Percent Complete');
+        data.addColumn('string', 'Dependencies');
+
+        let insertData = [];
+
+        tasks.forEach(function (row) {
+            // Parse start and end dates
+            let startDate = new Date(row.start);
+            let endDate = new Date(row.due);
+
+            // Validate dates
+            if (isNaN(startDate.getTime())) {
+                console.error('Invalid start date:', row.start);
+                startDate = new Date(); // Default to current date if invalid
+            }
+
+            if (isNaN(endDate.getTime())) {
+                console.error('Invalid end date:', row.due);
+                endDate = new Date(); // Default to current date if invalid
+            }
+
+            // Ensure duration is valid
+            let duration = endDate >= startDate ? (endDate - startDate) / (1000 * 60 * 60 * 24) : 0; // Duration in days
+            let rowData = [
+                row.taskID ? row.taskID.toString() : '',
+                row.name || 'Unnamed Task',
+                row.description || 'No Description',
+                startDate,
+                endDate,
+                duration * 24 * 60 * 60 * 1000, // Convert duration to milliseconds
+                0, // Percent Complete
+                '' // No dependencies
+            ];
+            insertData.push(rowData);
+        });
+
+        data.addRows(insertData);
+
+        let rowHeight = 30; // Height of each row in pixels
+        let padding = 20;   // Additional padding in pixels
+        let timelineHeight = 50; // Estimated height of the timeline in pixels
+        let chartHeight = tasks.length * rowHeight + padding + timelineHeight; // Total height
+
+        let containerWidth = document.querySelector('#chart_div').parentElement.offsetWidth * 0.9;
+
+        var options = {
+            height: chartHeight,
+            width: containerWidth
+        };
+
+        var chart = new google.visualization.Gantt(document.getElementById('chart_div'));
+
+        chart.draw(data, options);
+
+        // Adjust tooltip z-index on hover
+        google.visualization.events.addListener(chart, 'onmouseover', function() {
+            var tooltips = document.querySelectorAll('.google-visualization-tooltip');
+        });
+    }
+</script>
 </html>

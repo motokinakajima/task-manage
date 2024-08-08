@@ -3,87 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task Management</title>
-    <script>
-        function filterTasks() {
-            let filterValue = document.getElementById('taskFilter').value;
-            let table = document.getElementById('taskTable');
-            let rows = table.getElementsByTagName('tr');
-
-            for (let i = 1; i < rows.length; i++) {
-                let completionValue = rows[i].getElementsByTagName('td')[10].dataset.completion;
-                if (filterValue === 'all' || filterValue === completionValue) {
-                    rows[i].style.display = '';
-                } else {
-                    rows[i].style.display = 'none';
-                }
-            }
-        }
-    </script>
+    <link href="/stylesheets/style.css" rel="stylesheet">
+    <title>Document</title>
 </head>
 <body>
-<h2>Filter Tasks</h2>
-<label for="taskFilter">Show tasks:</label>
-<select id="taskFilter" onchange="filterTasks()">
-    <option value="all">All</option>
-    <option value="-1">Not started</option>
-    <option value="0">In progress</option>
-    <option value="1">Finished</option>
-</select>
-
-<h2>Task Data</h2>
-<% if (taskData && taskData.length > 0) { %>
-    <table id="taskTable" border="1">
-        <thead>
-        <tr>
-            <th>Task Name</th>
-            <th>Description</th>
-            <th>Created Date</th>
-            <th>Due Date</th>
-            <th>Priority</th>
-            <th>Risk</th>
-            <th>Responsible</th>
-            <th>Accountable</th>
-            <th>Consulted</th>
-            <th>Informed</th>
-            <th>Progress</th>
-            <th></th>
-        </tr>
-        </thead>
-        <tbody>
-        <% taskData.forEach(function(row) { %>
-            <tr>
-                <td><a href="/task/edit-task?tid=<%= row.taskID %>"><%= row.name %></a></td>
-                <td><%= row.description %></td>
-                <td><%= row.created_at %></td>
-                <td><%= row.due %></td>
-                <td><%= row.priority %></td>
-                <td><%= row.risk %></td>
-                <td><%= row.responsible %></td>
-                <td><%= row.accountable %></td>
-                <td><%= row.consulted %></td>
-                <td><%= row.informed %></td>
-                <td data-completion="<%= row.completion %>">
-                    <% if (row.completion === 1) { %>
-                        Finished
-                    <% } else if (row.completion === 0) { %>
-                        In progress
-                    <% } else { %>
-                        Not started
-                    <% } %>
-                </td>
-                <td>
-                    <form action="/task/delete-task" method="post">
-                        <input type="hidden" name="taskID" value="<%= row.taskID %>">
-                        <button type="submit">削除</button>
-                    </form>
-                </td>
-            </tr>
-        <% }); %>
-        </tbody>
-    </table>
-<% } else { %>
-    <p>No taskData available for this project.</p>
-<% } %>
+<div class="container">
+    <div class="sidebar">
+        <img src="/images/hayabusa2.png" alt="icon">
+        <% if(userID) { %>
+            <ul>
+                <a href="/"><li>ホーム</li></a>
+                <a href="/dashboard"><li>ダッシュボード</li></a>
+                <a href="/task/tasks"><li>タスク一覧</li></a>
+                <a href=""><li>ファイル一覧</li></a>
+                <a href="/profile?uid=<%= userID %>"><li>マイページ</li></a>
+                <a href="/login/logout"><li>ログアウト</li></a>
+            </ul>
+        <% }else { %>
+            <ul>
+                <a href="/"><li>ホーム</li></a>
+                <a href="/login"><li>ログイン</li></a>
+                <a href="/login/create"><li>アカウント作成</li></a>
+            </ul>
+        <% } %>
+    </div>
+    
+    <div class="content">
+        <div class="section">
+            <h2>タスク一覧</h2>
+            <div class="selector">
+                <label for="taskFilter">Show tasks:</label>
+                <select id="taskFilter" onchange="filterTasks()">
+                    <option value="all">All</option>
+                    <option value="-1">Not started</option>
+                    <option value="0">In progress</option>
+                    <option value="1">Finished</option>
+                </select>
+            </div>
+            <% if(taskData && taskData.length > 0) { %>
+            <table id="taskTable">
+                <thead>
+                    <tr>
+                        <th>タスク名</th>
+                        <th>概要</th>
+                        <th>期限</th>
+                        <th>責任者</th>
+                        <th>進行度</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% taskData.forEach(row => { %>
+                        <tr>
+                            <td><a href="/task?tid=<%= row.taskID%>"><%= row.name %></a></td>
+                            <td><%= row.description %></td>
+                            <td><%= row.due %></td>
+                            <td><%= row.responsible %></td>
+                            <td data-completion="<%= row.completion %>"><% if(row.completion === 1){ %>
+                                完了
+                            <% } else if(row.completion === 0){ %>
+                                作業中
+                            <% } else { %>
+                                始まってすらいない
+                            <% } %></td>
+                            <td><form action="/task/delete-task" method="post"><input type="hidden" name="taskID" value="<%= row.taskID%>"><button type="submit">削除</button></form></td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+            <form action="/project/create-task" method="get"><button type="submit">タスクを作成</button></form>
+            <div id="chart_div"></div>
+            <% }else { %>
+                <p>表示するプロジェクトがありません</p>
+                <form action="/project/create-task" method="get"><button type="submit">タスクを作成</button></form>
+            <% } %>
+        </div>
+    </div>
+</div>
 </body>
+<script>
+    function filterTasks() {
+        let filterValue = document.getElementById('taskFilter').value;
+        let table = document.getElementById('taskTable');
+        let rows = table.getElementsByTagName('tr');
+
+        for (let i = 1; i < rows.length; i++) {
+            let completionValue = rows[i].getElementsByTagName('td')[4].dataset.completion;
+            if (filterValue === 'all' || filterValue === completionValue) {
+                rows[i].style.display = '';
+            } else {
+                rows[i].style.display = 'none';
+            }
+        }
+    }
+</script>
 </html>
