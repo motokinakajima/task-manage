@@ -41,7 +41,7 @@
             <div class="section">
                 <h2><%= projectData[0].name %></h2>
                 <p><%= projectData[0].description %></p>
-                <div><a href="/project/edit-project?pid=<%= projectData[0].projectID %>"><button>タスクを編集</button></a></div>
+                <div><a href="/project/edit-project?pid=<%= projectData[0].projectID %>"><button>プロジェクトを編集</button></a></div>
             </div>
 
             <div class="section">
@@ -64,7 +64,7 @@
                                 <td><a href="/task?tid=<%= row.taskID%>"><%= row.name %></a></td>
                                 <td><%= row.description %></td>
                                 <td><%= row.due %></td>
-                                <td><%= row.responsible %></td>
+                                <td><% users.forEach(user_row => { %><%= user_row.userID === row.responsible? user_row.name : ''%><% }) %></td>
                                 <td><% if(row.completion === 1){ %>
                                     完了
                                 <% } else if(row.completion === 0){ %>

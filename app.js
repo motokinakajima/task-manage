@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const { createClient } = require('@supabase/supabase-js');
 const { v4: uuidv4 } = require('uuid');
+const favicon = require('serve-favicon');
 require('dotenv').config();
 
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -94,6 +95,8 @@ class SupabaseSessionStore extends session.Store {
 const app = express();
 
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 
 // Middleware setup
 app.use(bodyParser.json());

@@ -27,13 +27,15 @@ router.get('/', async (req,res,next) => {
         const { data: taskData, error: taskError } = await supabase.from('tasks').select('*').eq('taskID', t_id);
         const { data: commentData, error: commentError } = await supabase.from('comments').select('*').eq('taskID', t_id);
         const { data: files, error: fileError } = await supabase.from('task_files').select('*').eq('taskID', t_id);
+        const { data: userData, error } = await supabase.from('users').select('userID, name');
 
         const returnData = {
             projectData: projectData,
             taskData: taskData,
             comments: commentData,
             files: files,
-            userID: req.session.userID
+            userID: req.session.userID,
+            users: userData
         }
 
         res.render('task', returnData);
@@ -64,7 +66,8 @@ router.post('/', async (req,res,next) => {
 
 router.get('/tasks', async (req,res,next) => {
     const { data: taskData, error } = await supabase.from('tasks').select('*');
-    res.render('tasks', { taskData: taskData, userID: req.session.userID });
+    const { data: userData, _error } = await supabase.from('users').select('userID, name');
+    res.render('tasks', { taskData: taskData, userID: req.session.userID, users: userData });
 });
 
 router.get('/edit-task', async (req, res, next) => {
@@ -77,9 +80,8 @@ router.get('/edit-task', async (req, res, next) => {
         req.session.currentProject = p_id;
         req.session.currentTask = t_id;
         const { data: taskData, error } = await supabase.from('tasks').select('*').eq('taskID', t_id);
-        const { data, _error } = await supabase.from('users').select('*');
-        const namesOnly = data.map(user => ({ name: user.name }));
-        res.render('edit_task', { taskData: taskData, users: namesOnly, userID: req.session.userID });
+        const { data, _error } = await supabase.from('users').select('userID, name');
+        res.render('edit_task', { taskData: taskData, users: data, userID: req.session.userID });
     }
 });
 

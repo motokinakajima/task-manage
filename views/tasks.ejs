@@ -57,7 +57,7 @@
                             <td><a href="/task?tid=<%= row.taskID%>"><%= row.name %></a></td>
                             <td><%= row.description %></td>
                             <td><%= row.due %></td>
-                            <td><%= row.responsible %></td>
+                            <td><% users.forEach(user_row => { %><%= user_row.userID === row.responsible? user_row.name : ''%><% }) %></td>
                             <td data-completion="<%= row.completion %>"><% if(row.completion === 1){ %>
                                 完了
                             <% } else if(row.completion === 0){ %>

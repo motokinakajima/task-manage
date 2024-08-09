@@ -18,11 +18,13 @@ router.get('/', async (req, res, next) => {
 
         const { data: projectData, error: projectError } = await supabase.from('projects').select('*').eq('projectID', p_id);
         const { data: taskData, error: taskError } = await supabase.from('tasks').select('*').eq('projectID', p_id);
+        const { data: userData, error } = await supabase.from('users').select('userID, name');
 
         const data = {
             projectData: projectData,
             tasks: taskData,
-            userID: req.session.userID
+            userID: req.session.userID,
+            users: userData
         };
 
         res.render('project', data);
@@ -30,9 +32,8 @@ router.get('/', async (req, res, next) => {
 });
 
 router.get('/create-task', async (req,res,next) => {
-    const { data, error } = await supabase.from('users').select('*');
-    const namesOnly = data.map(user => ({ name: user.name }));
-    req.session.userID? res.render('create_task' ,{ users: namesOnly, userID: req.session.userID }) : res.redirect('/dashboard', { userID: req.session.userID });
+    const { data, error } = await supabase.from('users').select('userID, name');
+    req.session.userID? res.render('create_task' ,{ users: data, userID: req.session.userID }) : res.redirect('/dashboard');
 });
 
 
@@ -40,7 +41,7 @@ router.post('/create-task', async (req, res, next) => {
     const { task_name, task_description, start_date, due_date, priority, risk, responsible, accountable, consulted, informed} = req.body;
     const p_id = req.session.currentProject;
     if (!p_id || !task_name || !task_description || !start_date || !due_date || !priority || !risk || !responsible || !accountable || !consulted || !informed) {
-        res.redirect('dashboard/');
+        res.redirect('/dashboard');
     } else {
         let newTaskID;
         let isUnique = false;

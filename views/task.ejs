@@ -54,10 +54,10 @@
                     期限：<%= taskData[0].due %><br>
                     優先度：<%= taskData[0].priority %><br>
                     リスク：<%= taskData[0].risk %><br>
-                    Responsible：<%= taskData[0].responsible %><br>
-                    Accountable：<%= taskData[0].accountable %><br>
-                    Consulted：<%= taskData[0].consulted %><br>
-                    Informed：<%= taskData[0].informed %><br>
+                    Responsible：<% users.forEach(row => { %><%= row.userID === taskData[0].responsible? row.name : ''%><% }) %><br>
+                    Accountable：<% users.forEach(row => { %><%= row.userID === taskData[0].accountable? row.name : ''%><% }) %><br>
+                    Consulted：<% users.forEach(row => { %><%= row.userID === taskData[0].consulted? row.name : ''%><% }) %><br>
+                    Informed：<% users.forEach(row => { %><%= row.userID === taskData[0].informed? row.name : ''%><% }) %><br>
                     進行度：<% if(taskData[0].completion === 1){ %>
                         完了
                     <% } else if(taskData[0].completion === 0){ %>
@@ -106,7 +106,7 @@
                     <ul class="comments">
                     <% comments.forEach(row => { %>
                         <li>
-                            <div><img src="https://nwqvdbypyykkzigutrlt.supabase.co/storage/v1/object/public/icons/<%= row.commenter_id%>.jpg" alt="icon"><br><%= row.commenter_name%></div>
+                            <div><img class="comment-icon" src="https://nwqvdbypyykkzigutrlt.supabase.co/storage/v1/object/public/icons/<%= row.commenter_id%>.jpg" alt="icon"><br><%= row.commenter_name%></div>
                             <div><%= row.comment %></div>
                             <div><%= row.created_at %></div>
                         </li>
