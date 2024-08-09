@@ -253,7 +253,7 @@ button:hover {
 }
 
 .section form button,
-a button {
+button {
     background-color: #3498db;
     color: white;
     border: none;
@@ -265,7 +265,7 @@ a button {
 }
 
 .section form button:hover,
-a button:hover {
+button:hover {
     background-color: #2980b9;
 }
 .file-upload {
