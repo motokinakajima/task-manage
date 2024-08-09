@@ -40,11 +40,11 @@ router.get('/logout', (req, res, next) => {
 });
 
 router.post('/create', async (req, res) => {
-    const { usr_name, mail, password } = req.body;
+    const { usr_name, mail, password, keyword } = req.body;
 
     const { data, error } = await supabase.from('users').select('*').eq('email',mail);
 
-    if(data[0]){
+    if(data[0] || keyword !== "cykablyat"){
         res.redirect('/login/create');
     }else{
         let newUserId;
