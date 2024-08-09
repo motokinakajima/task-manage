@@ -137,21 +137,6 @@ a:hover {
     color: #2980b9;
 }
 
-button {
-    background-color: #e74c3c;
-    color: white;
-    border: none;
-    padding: 0.8em 1.5em;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    font-size: 0.9em;
-}
-
-button:hover {
-    background-color: #c0392b;
-}
-
 #chart_div {
     margin-top: 3em;
     width: 100%;
@@ -254,7 +239,6 @@ button:hover {
     margin-bottom: 1em;
 }
 
-.section form button,
 button {
     background-color: #3498db;
     color: white;
@@ -266,25 +250,48 @@ button {
     font-size: 1em;
 }
 
-.section form button:hover,
 button:hover {
     background-color: #2980b9;
 }
+
+form button {
+    display: block;
+    margin: auto;
+}
+
 .file-upload {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 2em;
+    padding: 2em;
 }
 
 .file-upload input[type="file"] {
-    margin-right: 1em;
-    padding: 0.8em 1.2em;
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    z-index: -1;
+}
+
+.file-upload label {
+    display: inline-block;
+    padding: 0.8em 1.5em;
     font-size: 1em;
-    border: 1px solid #ced4da;
+    font-weight: 400;
+    color: white;
+    background-color: #3498db;
     border-radius: 6px;
-    background-color: #f8f9fa;
-    flex-grow: 1; /* Allow the file input to grow and take up available space */
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    text-align: center;
+}
+
+.file-upload label:hover {
+    background-color: #2980b9;
+}
+
+.file-upload label:focus {
+    outline: 1px dotted #000;
+    outline: -webkit-focus-ring-color auto 5px;
 }
 
 .file-upload button {
@@ -296,7 +303,7 @@ button:hover {
     cursor: pointer;
     transition: background-color 0.3s ease;
     font-size: 1em;
-    margin-left: 1em; /* Add some space between the input and the button */
+    margin-left: 1em;
 }
 
 .file-upload button:hover {

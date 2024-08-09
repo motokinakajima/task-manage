@@ -3,7 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="/stylesheets/style.css" rel="stylesheet">
+    <script>
+        if (window.innerWidth <= 768) {
+            document.write('<link rel="stylesheet" href="/stylesheets/mobile.css">');
+        } else {
+            document.write('<link rel="stylesheet" href="/stylesheets/desktop.css">');
+        }
+    </script>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <title>Document</title>
 </head>
@@ -93,8 +99,9 @@
                 <h2>ファイルアップロード</h2>
                 <form method="post" enctype="multipart/form-data" action="/task/upload-file">
                     <div class="file-upload">
-                        <input type="hidden" name="taskID" value="<%= taskData[0].taskID %>">
-                        <input type="file" name="taskFile" accept=".docx,.xlsx,.pdf" required>
+                        <input type="hidden" name="taskID" value="t9645tnn128">
+                        <input type="file" name="taskFile" id="taskFile" accept=".docx,.xlsx,.pdf" required>
+                        <label for="taskFile">ファイルを選択</label>
                         <button type="submit">Upload File</button>
                     </div>
                 </form>
