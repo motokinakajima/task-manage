@@ -337,3 +337,55 @@ button:hover {
 .selector {
     margin: 20px auto;
 }
+
+.selector {
+    margin: 20px 0;
+    display: flex;
+    align-items: center;
+}
+
+.selector label {
+    font-size: 1.1em;
+    font-weight: 500;
+    margin-right: 1em;
+    color: #333;
+}
+
+.selector select {
+    padding: 0.8em 1em;
+    font-size: 1em;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    background-color: #fff;
+    color: #333;
+    cursor: pointer;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1em center;
+    padding-right: 2.5em;
+}
+
+.selector select:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.25);
+}
+
+.selector select:hover {
+    border-color: #3498db;
+}
+
+/* For Firefox */
+.selector select {
+    text-indent: 0.01px;
+    text-overflow: '';
+}
+
+/* For IE10+ */
+.selector select::-ms-expand {
+    display: none;
+}
