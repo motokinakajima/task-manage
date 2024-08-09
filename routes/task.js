@@ -68,11 +68,12 @@ router.get('/tasks', async (req,res,next) => {
 });
 
 router.get('/edit-task', async (req, res, next) => {
-    const p_id = req.query.pid;
     const t_id = req.query.tid;
-    if(!p_id || !t_id || !req.session.userID){
+    const { data: projectID, error } = await supabase.from('tasks').select('projectID').eq('taskID', t_id);
+    if(!t_id || !req.session.userID || !projectID[0]){
         res.redirect('/dashboard');
     }else{
+        const p_id = projectID[0]['projectID'];
         req.session.currentProject = p_id;
         req.session.currentTask = t_id;
         const { data: taskData, error } = await supabase.from('tasks').select('*').eq('taskID', t_id);

@@ -31,9 +31,6 @@
         </div>
 
         <div class="content">
-            <div class="header">
-                <h1>タスク情報</h1>
-            </div>
 
             <div class="breadcrumb">
                 <a href="/">ホーム</a>
@@ -70,6 +67,7 @@
                         始まってすらいない
                     <% } %>
                 </p>
+                <div><a href="/task/edit-task?tid=<%= taskData[0].taskID %>"><button>タスクを編集</button></a></div>
             </div>
 
             <div class="section">
