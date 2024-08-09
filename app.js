@@ -5,11 +5,14 @@ const path = require('path');
 const { createClient } = require('@supabase/supabase-js');
 const { v4: uuidv4 } = require('uuid');
 const favicon = require('serve-favicon');
+const SupabaseSessionStore = require('./supabase-session-store'); // Adjust the path if needed
 require('dotenv').config();
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
+
+const supabaseStore = new SupabaseSessionStore(supabase);
 
 // Route handlers
 const indexRouter = require('./routes/index');
@@ -18,78 +21,6 @@ const loginRouter = require('./routes/login');
 const dashboardRouter = require('./routes/dashboard');
 const taskRouter = require('./routes/task');
 const profileRouter = require('./routes/profile');
-
-class SupabaseSessionStore extends session.Store {
-    constructor() {
-        super();
-    }
-
-    async get(sid, callback) {
-        try {
-            const { data, error } = await supabase
-                .from('sessions')
-                .select('session_data')
-                .eq('id', sid)
-                .maybeSingle(); // maybeSingle will handle 0 or 1 row correctly
-    
-            if (error) {
-                console.error('Error in get:', error);
-                return callback(new Error('Failed to get session'));
-            }
-    
-            if (data) {
-                callback(null, data.session_data);
-            } else {
-                callback(null, null); // No session found, return null
-            }
-        } catch (err) {
-            console.error('Exception in get:', err);
-            callback(new Error('Failed to get session'));
-        }
-    }     
-
-    async set(sid, sessionData, callback) {
-        try {
-            const expiresAt = sessionData.cookie.expires ? new Date(sessionData.cookie.expires) : null;
-            const { error } = await supabase
-                .from('sessions')
-                .upsert({
-                    id: sid,
-                    session_data: sessionData,
-                    expires_at: expiresAt
-                });
-
-            if (error) {
-                console.error('Error in set:', error);
-                return callback(new Error('Failed to set session'));
-            }
-
-            callback(null);
-        } catch (err) {
-            console.error('Exception in set:', err);
-            callback(new Error('Failed to set session'));
-        }
-    }
-
-    async destroy(sid, callback) {
-        try {
-            const { error } = await supabase
-                .from('sessions')
-                .delete()
-                .eq('id', sid);
-
-            if (error) {
-                console.error('Error in destroy:', error);
-                return callback(new Error('Failed to destroy session'));
-            }
-
-            callback(null);
-        } catch (err) {
-            console.error('Exception in destroy:', err);
-            callback(new Error('Failed to destroy session'));
-        }
-    }
-}
 
 // Initialize Express app
 const app = express();
@@ -104,7 +35,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // Session configuration
 app.use(session({
-    store: new SupabaseSessionStore(),
+    store: supabaseStore,
     secret: 'your-secret-key', // Replace with your secret
     resave: false,
     saveUninitialized: false,

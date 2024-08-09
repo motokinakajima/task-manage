@@ -1,68 +1,78 @@
-const { Store } = require('express-session');
+// supabase-session-store.js
+const session = require('express-session'); // Import session from express-session
 const { createClient } = require('@supabase/supabase-js');
 
-class SupabaseStore extends Store {
-    constructor(options) {
+class SupabaseSessionStore extends session.Store { // Use session.Store correctly
+    constructor(supabaseClient) {
         super();
-        this.supabase = createClient(options.supabaseUrl, options.supabaseKey);
-        this.table = options.table || 'sessions';
+        this.supabase = supabaseClient; // Assign the Supabase client to the instance
     }
 
     async get(sid, callback) {
         try {
             const { data, error } = await this.supabase
-                .from(this.table)
-                .select('data')
+                .from('sessions')
+                .select('session_data')
                 .eq('id', sid)
-                .single();
-
+                .maybeSingle();
+    
             if (error) {
-                return callback(error);
+                console.error('Error in get:', error);
+                return callback(new Error('Failed to get session'));
             }
-
-            if (!data) {
-                return callback(null, null);
+    
+            if (data) {
+                callback(null, data.session_data);
+            } else {
+                callback(null, null); // No session found, return null
             }
-
-            return callback(null, data.data);
         } catch (err) {
-            return callback(err);
+            console.error('Exception in get:', err);
+            callback(new Error('Failed to get session'));
         }
     }
 
-    async set(sid, session, callback) {
+    async set(sid, sessionData, callback) {
         try {
-            const expires = session.cookie.expires ? new Date(session.cookie.expires) : null;
+            const expiresAt = sessionData.cookie.expires ? new Date(sessionData.cookie.expires) : null;
             const { error } = await this.supabase
-                .from(this.table)
-                .upsert({ id: sid, data: session, expires: expires });
+                .from('sessions')
+                .upsert({
+                    id: sid,
+                    session_data: sessionData,
+                    expires_at: expiresAt
+                });
 
             if (error) {
-                return callback(error);
+                console.error('Error in set:', error);
+                return callback(new Error('Failed to set session'));
             }
 
-            return callback(null);
+            callback(null);
         } catch (err) {
-            return callback(err);
+            console.error('Exception in set:', err);
+            callback(new Error('Failed to set session'));
         }
     }
 
     async destroy(sid, callback) {
         try {
             const { error } = await this.supabase
-                .from(this.table)
+                .from('sessions')
                 .delete()
                 .eq('id', sid);
 
             if (error) {
-                return callback(error);
+                console.error('Error in destroy:', error);
+                return callback(new Error('Failed to destroy session'));
             }
 
-            return callback(null);
+            callback(null);
         } catch (err) {
-            return callback(err);
+            console.error('Exception in destroy:', err);
+            callback(new Error('Failed to destroy session'));
         }
     }
 }
 
-module.exports = SupabaseStore;
+module.exports = SupabaseSessionStore;
