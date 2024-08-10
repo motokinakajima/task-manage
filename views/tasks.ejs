@@ -24,7 +24,7 @@
                 <a href="/profile?uid=<%= userID %>"><li>マイページ</li></a>
                 <a href="/login/logout"><li>ログアウト</li></a>
             </ul>
-        <% }else { %>
+        <% } else { %>
             <ul>
                 <a href="/"><li>ホーム</li></a>
                 <a href="/login"><li>ログイン</li></a>
@@ -36,15 +36,6 @@
     <div class="content">
         <div class="section">
             <h2>タスク一覧</h2>
-            <div class="selector">
-                <label for="taskFilter">Show tasks:</label>
-                <select id="taskFilter" onchange="filterTasks()">
-                    <option value="all">All</option>
-                    <option value="-1">Not started</option>
-                    <option value="0">In progress</option>
-                    <option value="1">Finished</option>
-                </select>
-            </div>
             <% if(taskData && taskData.length > 0) { %>
             <table id="taskTable">
                 <thead>
@@ -52,32 +43,62 @@
                         <th>タスク名</th>
                         <th>概要</th>
                         <th>期限</th>
-                        <th>責任者</th>
-                        <th>進行度</th>
+                        <th>責任者
+                            <div class="selector">
+                                <select id="statusFilter">
+                                    <option value="all">All</option>
+                                    <option value="-1">Not started</option>
+                                    <option value="0">In progress</option>
+                                    <option value="1">Finished</option>
+                                </select>
+                            </div>
+                        </th>
+                        <th>進行度
+                            <div class="selector">
+                                <select id="personFilter">
+                                    <option value="all">All</option>
+                                    <% users.forEach(user_row => { %>
+                                        <option value="<%= user_row.userID %>"><%= user_row.name %></option>
+                                    <% }) %>
+                                </select>
+                            </div>
+                        </th>
                         <th></th>
                     </tr>
                 </thead>
                 <tbody>
                     <% taskData.forEach(row => { %>
                         <tr>
-                            <td><a href="/task?tid=<%= row.taskID%>"><%= row.name %></a></td>
+                            <td><a href="/task?tid=<%= row.taskID %>"><%= row.name %></a></td>
                             <td><%= row.description %></td>
                             <td><%= row.due %></td>
-                            <td><% users.forEach(user_row => { %><%= user_row.userID === row.responsible? user_row.name : ''%><% }) %></td>
-                            <td data-completion="<%= row.completion %>"><% if(row.completion === 1){ %>
-                                完了
-                            <% } else if(row.completion === 0){ %>
-                                作業中
-                            <% } else { %>
-                                始まってすらいない
-                            <% } %></td>
-                            <td><form action="/task/delete-task" method="post"><input type="hidden" name="taskID" value="<%= row.taskID%>"><button type="submit">削除</button></form></td>
+                            <td>
+                                <% users.forEach(user_row => { %>
+                                    <%= user_row.userID === row.responsible ? user_row.name : '' %>
+                                <% }) %>
+                                <div hidden><%= row.responsible %></div>
+                            </td>
+                            <td data-completion="<%= row.completion %>">
+                                <% if(row.completion === 1) { %>
+                                    完了
+                                <% } else if(row.completion === 0) { %>
+                                    作業中
+                                <% } else { %>
+                                    始まってすらいない
+                                <% } %>
+                            </td>
+                            <td>
+                                <form action="/task/delete-task" method="post">
+                                    <input type="hidden" name="taskID" value="<%= row.taskID %>">
+                                    <button type="submit">削除</button>
+                                </form>
+                            </td>
                         </tr>
                     <% }) %>
                 </tbody>
             </table>
             <div id="chart_div"></div>
-            <% }else { %>
+            <% } else { %>
                 <p>表示するプロジェクトがありません</p>
             <% } %>
         </div>
@@ -85,19 +106,29 @@
 </div>
 </body>
 <script>
-    function filterTasks() {
-        let filterValue = document.getElementById('taskFilter').value;
-        let table = document.getElementById('taskTable');
-        let rows = table.getElementsByTagName('tr');
+    document.addEventListener("DOMContentLoaded", function() {
+        function filterTasks() {
+            let statusFilterValue = document.getElementById('statusFilter').value;
+            let personFilterValue = document.getElementById('personFilter').value;
+            let table = document.getElementById('taskTable');
+            let rows = table.getElementsByTagName('tr');
 
-        for (let i = 1; i < rows.length; i++) {
-            let completionValue = rows[i].getElementsByTagName('td')[4].dataset.completion;
-            if (filterValue === 'all' || filterValue === completionValue) {
-                rows[i].style.display = '';
-            } else {
-                rows[i].style.display = 'none';
+            for (let i = 1; i < rows.length; i++) {
+                let completionValue = rows[i].getElementsByTagName('td')[4].dataset.completion;
+                let personValue = rows[i].getElementsByTagName('td')[3].querySelector('div').innerText.trim();
+
+                if ((statusFilterValue === 'all' || statusFilterValue === completionValue) &&
+                    (personFilterValue === 'all' || personFilterValue === personValue)) {
+                    rows[i].style.display = '';
+                } else {
+                    rows[i].style.display = 'none';
+                }
             }
         }
-    }
+
+        // Add event listeners
+        document.getElementById('statusFilter').addEventListener('change', filterTasks);
+        document.getElementById('personFilter').addEventListener('change', filterTasks);
+    });
 </script>
 </html>
