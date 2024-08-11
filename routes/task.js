@@ -67,7 +67,7 @@ router.post('/', async (req,res,next) => {
 router.get('/tasks', async (req,res,next) => {
     const { data: taskData, error } = await supabase.from('tasks').select('*');
     const { data: userData, _error } = await supabase.from('users').select('userID, name');
-    res.render('tasks', { taskData: taskData, userID: req.session.userID, users: userData });
+    req.session.userID ? res.render('tasks', { taskData: taskData, userID: req.session.userID, users: userData }) : res.redirect('/dashboard');
 });
 
 router.get('/edit-task', async (req, res, next) => {

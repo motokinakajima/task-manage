@@ -11,7 +11,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 router.get('/', async (req, res, next) => {
     const p_id = req.query.pid;
     req.session.currentProject = p_id;
-    if (!p_id) {
+    if (!p_id || !req.session.userID) {
         return res.redirect('/dashboard');
     } else {
         req.session.currentProject = p_id;

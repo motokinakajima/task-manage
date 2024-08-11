@@ -14,7 +14,7 @@ const upload = multer({ storage: storage });
 
 router.get('/', async (req, res, next) => {
     const u_id = req.query.uid;
-    if(!u_id){
+    if(!u_id || !req.session.userID){
         res.redirect('dashboard');
     }else if(u_id === req.session.userID){
         const { data: userData, error } = await supabase.from('users').select('*').eq('userID', u_id);
@@ -39,7 +39,7 @@ router.post('/edit-profile', async (req, res, next) => {
 });
 
 router.get('/upload-icon', async (req, res, next) => {
-    res.render('upload_icon', { userID: req.session.userID });
+    req.session.userID ? res.render('upload_icon', { userID: req.session.userID }) : res.redirect('/dashboard');
 });
 
 router.post('/upload-icon', upload.single('avatar'), async (req, res, next) => {
@@ -61,7 +61,7 @@ router.get('/get-icon', async (req, res, next) => {
     const u_id = req.query.uid;
     const { data, error } = supabase.storage.from('icons').getPublicUrl(`${u_id}.jpg`);
     console.log(error);
-    res.render('upload_icon', { userID: req.session.userID })
+    req.session.userID ? res.render('upload_icon', { userID: req.session.userID }) : res.redirect('/dashboard');
 });
 
 module.exports = router;

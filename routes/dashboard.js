@@ -18,7 +18,7 @@ router.get('/', async (req, res, next) => {
     }
 });
 
-router.get('/create-project', (req,res,next) => { req.session.userID? res.render('create_project', { userID: req.session.userID }) : res.redirect('/dashboard'); });
+router.get('/create-project', (req,res,next) => { req.session.userID ? res.render('create_project', { userID: req.session.userID }) : res.redirect('/dashboard'); });
 
 router.post('/create-project', async (req, res, next) => {
     const { project_name, project_description } = req.body;
