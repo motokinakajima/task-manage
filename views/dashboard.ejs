@@ -69,6 +69,57 @@
                 <% } %>
                 <form action="dashboard/create-project" method="get"><button type="submit">プロジェクトを作成</button></form>
             </div>
+
+            <div class="section">
+                <h2>自分に割り当てられたタスク一覧</h2>
+                <% if(taskData && taskData.length > 0) { %>
+                <table id="taskTable">
+                    <thead>
+                        <tr>
+                            <th>タスク名</th>
+                            <th>概要</th>
+                            <th>期限</th>
+                            <th>責任者</th>
+                            <th>進行度</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% taskData.forEach(row => { %>
+                            <tr>
+                                <td><a href="/task?tid=<%= row.taskID %>"><%= row.name %></a></td>
+                                <td><%= row.description %></td>
+                                <td><%= row.due %></td>
+                                <td>
+                                    <% users.forEach(user_row => { %>
+                                        <%= user_row.userID === row.responsible ? user_row.name : '' %>
+                                    <% }) %>
+                                    <div hidden><%= row.responsible %></div>
+                                </td>
+                                <td data-completion="<%= row.completion %>">
+                                    <% if(row.completion === 1) { %>
+                                        完了
+                                    <% } else if(row.completion === 0) { %>
+                                        作業中
+                                    <% } else { %>
+                                        始まってすらいない
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <form action="/task/delete-task" method="post">
+                                        <input type="hidden" name="taskID" value="<%= row.taskID %>">
+                                        <button type="submit">削除</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+                <div id="chart_div"></div>
+                <% } else { %>
+                    <p>表示するプロジェクトがありません</p>
+                <% } %>
+            </div>
         </div>
     </div>
 </body>
