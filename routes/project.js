@@ -1,12 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const path = require('path');
+const EmailSender = require('../EmailSender');
 const { createClient } = require('@supabase/supabase-js');
 require('dotenv').config();
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
+
+const emailSender = new EmailSender(process.env.GMAIL_USER,process.env.GMAIL_CLIENT_ID,process.env.GMAIL_CLIENT_SECRET,process.env.GMAIL_REFRESH_TOKEN);
 
 router.get('/', async (req, res, next) => {
     const p_id = req.query.pid;
@@ -56,7 +59,27 @@ router.post('/create-task', async (req, res, next) => {
 
         const { error } = await supabase.from('tasks').insert({ taskID: newTaskID, projectID: p_id, name: task_name, description: task_description,
             start: start_date, due: due_date, priority: priority, risk: risk, responsible: responsible, accountable: accountable, consulted: consulted, informed: informed });
+        
         res.redirect(`/project?pid=${p_id}`);
+
+        const { data: users, _error } = await supabase.from('users').select('*');
+
+        users.forEach(user => {
+            let roles = "";
+            if(user.userID===responsible){ roles+=", responsible"; }
+            if(user.userID===accountable){ roles+=", accountable"; }
+            if(user.userID===consulted){ roles+=", consulted"; }
+            if(user.userID===informed){ roles+=", informed"; }
+            if(roles!==""){ roles = roles.substring(2); }
+
+            console.log(`roles: ${roles}`)
+
+            if(roles !== ""){
+                emailSender.sendEmail(user.email, "タスクが割り当てられました", "", `<h1>タスク割り当て</h1><p><a href="https://task-manager-seven-pink.vercel.app/task?tid=${newTaskID}">${task_name}</a>というタスクに${roles}として割り当てられました。確認しましょう。</p>`)
+                .then(() => {console.log("sent email succesfully");})
+                .catch((error) => {console.error('Failed to send email:', error);});
+            }
+        });
     }
 });
 

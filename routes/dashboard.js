@@ -40,13 +40,14 @@ router.post('/create-project', async (req, res, next) => {
 
     const { error } = await supabase.from('projects').insert({ projectID: newProjectID, name: project_name, description: project_description });
 
+    res.redirect('/project/?pid=' + newProjectID);
+
     const { data: userData, errpr: _error } = await supabase.from('users').select('*');
 
     userData.forEach(user => {
-        emailSender.sendEmail(user.email, "新規プロジェクトが作成されました", "", `<p>${project_name}というプロジェクトが作成されました。確認しましょう。</p><a href="https://task-manager-seven-pink.vercel.app/project?pid=${newProjectID}">うひょお</a>`).then(() => {console.log("sent email succesfully");}).catch((error) => {console.error('Failed to send email:', error);});
+        emailSender.sendEmail(user.email, "新規プロジェクトが作成されました", "", `<h1>プロジェクト作成</h1><p><a href="https://task-manager-seven-pink.vercel.app/project?pid=${newProjectID}">${project_name}</a>というプロジェクトが作成されました。確認しましょう。</p>`).then(() => {console.log("sent email succesfully");}).catch((error) => {console.error('Failed to send email:', error);});
     });
 
-    res.redirect('/project/?pid=' + newProjectID);
 });
 
 module.exports = router;
