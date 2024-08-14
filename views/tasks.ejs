@@ -45,21 +45,21 @@
                         <th>期限</th>
                         <th>責任者
                             <div class="selector">
-                                <select id="statusFilter">
-                                    <option value="all">All</option>
-                                    <option value="-1">Not started</option>
-                                    <option value="0">In progress</option>
-                                    <option value="1">Finished</option>
-                                </select>
-                            </div>
-                        </th>
-                        <th>進行度
-                            <div class="selector">
                                 <select id="personFilter">
                                     <option value="all">All</option>
                                     <% users.forEach(user_row => { %>
                                         <option value="<%= user_row.userID %>"><%= user_row.name %></option>
                                     <% }) %>
+                                </select>
+                            </div>
+                        </th>
+                        <th>進行度
+                            <div class="selector">
+                                <select id="statusFilter">
+                                    <option value="all">All</option>
+                                    <option value="-1">開始前</option>
+                                    <option value="0">進行中</option>
+                                    <option value="1">完了</option>
                                 </select>
                             </div>
                         </th>
@@ -84,7 +84,7 @@
                                 <% } else if(row.completion === 0) { %>
                                     作業中
                                 <% } else { %>
-                                    始まってすらいない
+                                    開始前
                                 <% } %>
                             </td>
                             <td>

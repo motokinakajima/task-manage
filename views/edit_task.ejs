@@ -115,9 +115,9 @@
                 <div class="selector">
                     <label for="progress"><b>Progress</b></label>
                     <select name="progress">
-                        <option value="-1" <%= taskData[0].completion === -1 ? 'selected' : ''%>>not started</option>
-                        <option value="0" <%= taskData[0].completion === 0 ? 'selected' : ''%>>in progress</option>
-                        <option value="1" <%= taskData[0].completion === 1 ? 'selected' : ''%>>finished</option>
+                        <option value="-1" <%= taskData[0].completion === -1 ? 'selected' : ''%>>開始前</option>
+                        <option value="0" <%= taskData[0].completion === 0 ? 'selected' : ''%>>進行中</option>
+                        <option value="1" <%= taskData[0].completion === 1 ? 'selected' : ''%>>完了</option>
                     </select>
                 </div>
         
