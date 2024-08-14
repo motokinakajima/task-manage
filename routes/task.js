@@ -105,6 +105,12 @@ router.post('/delete-task', async (req, res, next) => {
     res.redirect(`/project?pid=${req.session.currentProject}`);
 });
 
+router.post('/update-progress', async (req, res, next) => {
+    const { taskID, progress } = req.body;
+
+    const { error } = await supabase.from('tasks').update({ completion: progress }).eq('taskID', taskID)
+})
+
 router.post('/upload-file', upload.single('taskFile'), async(req, res, next) => {
     if (!req.file) {
         return res.status(400).send('No file uploaded');

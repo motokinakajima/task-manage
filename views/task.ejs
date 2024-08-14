@@ -64,14 +64,14 @@
                     Accountable：<% users.forEach(row => { %><%= row.userID === taskData[0].accountable? row.name : ''%><% }) %><br>
                     Consulted：<% users.forEach(row => { %><%= row.userID === taskData[0].consulted? row.name : ''%><% }) %><br>
                     Informed：<% users.forEach(row => { %><%= row.userID === taskData[0].informed? row.name : ''%><% }) %><br>
-                    進行度：<% if(taskData[0].completion === 1){ %>
-                        完了
-                    <% } else if(taskData[0].completion === 0){ %>
-                        作業中
-                    <% } else { %>
-                        開始前
-                    <% } %>
                 </p>
+                <div class="selector">
+                    <select name="progress" id="selectProgress">
+                        <option value="-1" <%= taskData[0].completion === -1 ? 'selected' : ''%>>開始前</option>
+                        <option value="0" <%= taskData[0].completion === 0 ? 'selected' : ''%>>進行中</option>
+                        <option value="1" <%= taskData[0].completion === 1 ? 'selected' : ''%>>完了</option>
+                    </select>
+                </div>
                 <div><a href="/task/edit-task?tid=<%= taskData[0].taskID %>"><button>タスクを編集</button></a></div>
             </div>
 
@@ -133,3 +133,33 @@
         </div>
     </div>
 </body>
+
+<script>
+    const taskID = "<%= taskData[0].taskID %>";
+    document.getElementById('selectProgress').addEventListener('change', function() {
+        // Get the selected value
+        const selectedValue = this.value;
+    
+        // Create the data object to send
+        const data = { taskID: taskID, progress: selectedValue };
+    
+        // Send the POST request to the server
+        fetch('/task/update-progress', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data) // Send the selected value as JSON
+        })
+        .then(response => response.json())
+        .then(result => {
+            console.log('Success:', result);
+            // Reload the page after the server has processed the request
+            location.reload();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+    
+</script>
