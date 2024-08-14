@@ -44,7 +44,6 @@
                     <tr>
                         <th>Name</th>
                         <th>mail Address</th>
-                        <th>ID</th>
                         <th></th>
                     </tr>
                     </thead>
@@ -52,7 +51,7 @@
                         <tr>
                             <td><input type="text" name="name" value="<%= userData[0].name%>"></td>
                             <td><%= userData[0].email%></td>
-                            <td><%= userData[0].userID%><input type="hidden" name="userID" value="<%= userData[0].userID%>"></td>
+                            <input type="hidden" name="userID" value="<%= userData[0].userID%>">
                             <td><button type="submit">変更を保存</button></td>
                         </tr>
                     </tbody>
