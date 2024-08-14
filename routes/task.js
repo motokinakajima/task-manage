@@ -96,6 +96,25 @@ router.post('/edit-task', async (req, res, next) => {
         const { error } = await supabase.from('tasks').update({ taskID: t_id, projectID: p_id, name: task_name, description: task_description,
             start: start_date, due: due_date, priority: priority, risk: risk, responsible: responsible, accountable: accountable, consulted: consulted, informed: informed, completion: progress }).eq('taskID', t_id);
         res.redirect(`/task?tid=${t_id}`);
+
+        const { data: users, _error } = await supabase.from('users').select('*');
+
+        users.forEach(user => {
+            let roles = "";
+            if(user.userID===responsible){ roles+=", responsible"; }
+            if(user.userID===accountable){ roles+=", accountable"; }
+            if(user.userID===consulted){ roles+=", consulted"; }
+            if(user.userID===informed){ roles+=", informed"; }
+            if(roles!==""){ roles = roles.substring(2); }
+
+            console.log(`roles: ${roles}`)
+
+            if(roles !== ""){
+                emailSender.sendEmail(user.email, "タスクが割り当てられました", "", `<h1>タスク割り当て</h1><p><a href="https://task-manager-seven-pink.vercel.app/task?tid=${taskID}">${task_name}</a>というタスクに${roles}として割り当てられました。確認しましょう。</p>`)
+                .then(() => {console.log("sent email succesfully");})
+                .catch((error) => {console.error('Failed to send email:', error);});
+            }
+        });
     }
 });
 
