@@ -35,7 +35,8 @@ router.get('/', async (req,res,next) => {
             comments: commentData,
             files: files,
             userID: req.session.userID,
-            users: userData
+            users: userData,
+            supabaseURL: process.env.SUPABASE_URL
         }
 
         res.render('task', returnData);

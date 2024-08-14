@@ -113,7 +113,7 @@
                     <ul class="comments">
                     <% comments.forEach(row => { %>
                         <li>
-                            <div><a href="/profile?uid=<%= row.commenter_id%>"><img class="comment-icon" src="https://nwqvdbypyykkzigutrlt.supabase.co/storage/v1/object/public/icons/<%= row.commenter_id%>.jpg" alt="icon"></a><br><%= row.commenter_name%></div>
+                            <div><a href="/profile?uid=<%= row.commenter_id%>"><img class="comment-icon" src="<%= supabaseURL%>/storage/v1/object/public/icons/<%= row.commenter_id%>.jpg" alt="icon"></a><br><%= row.commenter_name%></div>
                             <div><%= row.comment %></div>
                             <div><%= row.created_at %></div>
                         </li>

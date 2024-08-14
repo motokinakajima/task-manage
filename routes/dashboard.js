@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const sqlite3 = require('sqlite3');
 const path = require('path');
+const EmailSender = require('../EmailSender');
 const { createClient } = require('@supabase/supabase-js');
 require('dotenv').config();
 
@@ -9,9 +10,11 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+const emailSender = new EmailSender(process.env.GMAIL_USER,process.env.GMAIL_CLIENT_ID,process.env.GMAIL_CLIENT_SECRET,process.env.GMAIL_REFRESH_TOKEN);
+
 router.get('/', async (req, res, next) => {
     if(!req.session.userID || !req.session.userName){
-        res.redirect('/');
+        res.redirect('/')
     }else {
         const { data: projectData, error: error } = await supabase.from('projects').select('*');
         const { data: taskData, error: _error } = await supabase.from('tasks').select('*').eq('responsible', req.session.userID);
@@ -36,6 +39,12 @@ router.post('/create-project', async (req, res, next) => {
     }
 
     const { error } = await supabase.from('projects').insert({ projectID: newProjectID, name: project_name, description: project_description });
+
+    const { data: userData, errpr: _error } = await supabase.from('users').select('*');
+
+    userData.forEach(user => {
+        emailSender.sendEmail(user.email, "新規プロジェクトが作成されました", "", `<p>${project_name}というプロジェクトが作成されました。確認しましょう。</p><a href="https://task-manager-seven-pink.vercel.app/project?pid=${newProjectID}">うひょお</a>`).then(() => {console.log("sent email succesfully");}).catch((error) => {console.error('Failed to send email:', error);});
+    });
 
     res.redirect('/project/?pid=' + newProjectID);
 });
