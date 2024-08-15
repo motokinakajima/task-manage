@@ -4,11 +4,14 @@ const path = require('path');
 const { createClient } = require('@supabase/supabase-js');
 const multer = require('multer');
 const { transliterate } = require('transliteration');
+const EmailSender = require('../EmailSender');
 require('dotenv').config();
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
+
+const emailSender = new EmailSender(process.env.GMAIL_USER,process.env.GMAIL_CLIENT_ID,process.env.GMAIL_CLIENT_SECRET,process.env.GMAIL_REFRESH_TOKEN);
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -112,7 +115,7 @@ router.post('/edit-task', async (req, res, next) => {
             if(roles !== ""){
                 let userName = ""
                 users.forEach(currentUser => { if(currentUser.userID === req.session.userID){ userName = currentUser.name }; });
-                emailSender.sendEmail(user.email, "タスクが割り当てられました", "", `<h1>タスク割り当て</h1><p><a href="https://task-manager-seven-pink.vercel.app/task?tid=${taskID}">${task_name}</a>というタスクに${roles}として割り当てられました。確認しましょう。</p><br><p>作成者：${userName}</p>`)
+                emailSender.sendEmail(user.email, "タスクが編集されました", "", `<h1>タスクの更新</h1><p><a href="https://task-manager-seven-pink.vercel.app/task?tid=${taskID}">${task_name}</a>というタスクに${roles}として割り当てられました。確認しましょう。</p><br><p>作成者：${userName}</p>`)
                 .then(() => {console.log("sent email succesfully");})
                 .catch((error) => {console.error('Failed to send email:', error);});
             }
