@@ -115,7 +115,7 @@ router.post('/edit-task', async (req, res, next) => {
             if(roles !== ""){
                 let userName = ""
                 users.forEach(currentUser => { if(currentUser.userID === req.session.userID){ userName = currentUser.name }; });
-                emailSender.sendEmail(user.email, "タスクが編集されました", "", `<h1>タスクの更新</h1><p><a href="https://task-manager-seven-pink.vercel.app/task?tid=${taskID}">${task_name}</a>というタスクに${roles}として割り当てられました。確認しましょう。</p><br><p>作成者：${userName}</p>`)
+                emailSender.sendEmail(user.email, "タスクが編集されました", "", `<h1>タスクの更新</h1><p><a href="https://task-manager-seven-pink.vercel.app/task?tid=${t_id}">${task_name}</a>というタスクに${roles}として割り当てられました。確認しましょう。</p><br><p>作成者：${userName}</p>`)
                 .then(() => {console.log("sent email succesfully");})
                 .catch((error) => {console.error('Failed to send email:', error);});
             }
