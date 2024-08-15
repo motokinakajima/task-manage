@@ -25,12 +25,16 @@ router.post('/', async (req, res) => {
 
     const { data, error } = await supabase.from('users').select('*').eq('email', mail);
 
-    if(data[0].email === mail && data[0].password === password){
-        req.session.userID = data[0].userID;
-        req.session.userName = data[0].name;
-        res.redirect('/dashboard');
+    if(data){
+        if(data[0].email === mail && data[0].password === password){
+            req.session.userID = data[0].userID;
+            req.session.userName = data[0].name;
+            res.redirect('/dashboard');
+        }else{
+            res.redirect('/login');
+        }
     }else{
-        res.redirect('/login');
+        res.redirect('/dashboard');
     }
 });
 
