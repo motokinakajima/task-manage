@@ -63,7 +63,6 @@
                                 </select>
                             </div>
                         </th>
-                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -86,12 +85,6 @@
                                 <% } else { %>
                                     開始前
                                 <% } %>
-                            </td>
-                            <td>
-                                <form action="/task/delete-task" method="post">
-                                    <input type="hidden" name="taskID" value="<%= row.taskID %>">
-                                    <button type="submit">削除</button>
-                                </form>
                             </td>
                         </tr>
                     <% }) %>
