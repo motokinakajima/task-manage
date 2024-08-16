@@ -16,6 +16,14 @@ const emailSender = new EmailSender(process.env.GMAIL_USER,process.env.GMAIL_CLI
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
+function getProgress(input){
+    switch(input){
+        case -1:return "開始前";
+        case 0:return "進行中";
+        case 1:return "完了";
+    }
+}
+
 router.get('/', async (req,res,next) => {
     const t_id = req.query.tid;
     const { data: projectID, error } = await supabase.from('tasks').select('projectID').eq('taskID', t_id);
@@ -96,6 +104,12 @@ router.post('/edit-task', async (req, res, next) => {
     if(!p_id || !t_id || !task_name || !task_description || !start_date || !due_date || !priority || !risk || !responsible || !accountable || !consulted || !informed || !progress){
         res.redirect('/dashboard');
     }else{
+        const { data: taskData, error: taskError } = await supabase.from('tasks').select('completion').eq('taskID', t_id);
+
+        if(taskData[0].completion !== progress){
+            const { _error } = await supabase.from('task_log').insert({ description: `updated progress at ${task_name} (${t_id}) from ${getProgress(taskData[0].completion)} to ${getProgress(parseInt(progress))}` });
+        }
+
         const { error } = await supabase.from('tasks').update({ taskID: t_id, projectID: p_id, name: task_name, description: task_description,
             start: start_date, due: due_date, priority: priority, risk: risk, responsible: responsible, accountable: accountable, consulted: consulted, informed: informed, completion: progress }).eq('taskID', t_id);
         res.redirect(`/task?tid=${t_id}`);
@@ -109,8 +123,6 @@ router.post('/edit-task', async (req, res, next) => {
             if(user.userID===consulted){ roles+=", consulted"; }
             if(user.userID===informed){ roles+=", informed"; }
             if(roles!==""){ roles = roles.substring(2); }
-
-            console.log(`roles: ${roles}`)
 
             if(roles !== ""){
                 let userName = ""
@@ -132,8 +144,26 @@ router.post('/delete-task', async (req, res, next) => {
 router.post('/update-progress', async (req, res, next) => {
     const { taskID, progress } = req.body;
 
-    const { error } = await supabase.from('tasks').update({ completion: progress }).eq('taskID', taskID)
-})
+    const { data: taskData, error: taskError } = await supabase.from('tasks').select('*').eq('taskID', taskID);
+
+    if(taskData[0].completion !== progress){
+        const { _error } = await supabase.from('task_log').insert({ description: `updated progress at ${taskData[0].name} (${taskID}) from ${getProgress(taskData[0].completion)} to ${getProgress(parseInt(progress))}` });
+    }
+
+    const { error } = await supabase.from('tasks').update({ completion: progress }).eq('taskID', taskID);
+
+    const { data: users, _error } = await supabase.from('users').select('*');
+
+    users.forEach(user => {
+        if(user.userID===taskData[0].responsible || user.userID===taskData[0].accountable || user.userID===taskData[0].consulted || user.userID===taskData[0].informed){
+            let userName = ""
+            users.forEach(currentUser => { if(currentUser.userID === req.session.userID){ userName = currentUser.name }; });
+            emailSender.sendEmail(user.email, "タスクの進行度が編集されました", "", `<h1>タスクの進行度の更新</h1><p><a href="https://task-manager-seven-pink.vercel.app/task?tid=${taskID}">${taskData[0].name}</a>というタスクの進行度が${getProgress(taskData[0].completion)}から${getProgress(parseInt(progress))}に変わりました。確認しましょう。</p><br><p>変更者：${userName}</p>`)
+            .then(() => {console.log("sent email succesfully");})
+            .catch((error) => {console.error('Failed to send email:', error);});
+        }
+    });
+});
 
 router.post('/upload-file', upload.single('taskFile'), async(req, res, next) => {
     if (!req.file) {
