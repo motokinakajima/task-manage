@@ -115,61 +115,63 @@
         data.addColumn('number', 'Duration');
         data.addColumn('number', 'Percent Complete');
         data.addColumn('string', 'Dependencies');
-
+    
         let insertData = [];
-
+    
         tasks.forEach(function (row) {
-            // Parse start and end dates
             let startDate = new Date(row.start);
             let endDate = new Date(row.due);
-
-            // Validate dates
+    
             if (isNaN(startDate.getTime())) {
                 console.error('Invalid start date:', row.start);
-                startDate = new Date(); // Default to current date if invalid
+                startDate = new Date();
             }
-
+    
             if (isNaN(endDate.getTime())) {
                 console.error('Invalid end date:', row.due);
-                endDate = new Date(); // Default to current date if invalid
+                endDate = new Date();
             }
-
-            // Ensure duration is valid
-            let duration = endDate >= startDate ? (endDate - startDate) / (1000 * 60 * 60 * 24) : 0; // Duration in days
+    
+            let duration = endDate >= startDate ? (endDate - startDate) / (1000 * 60 * 60 * 24) : 0;
             let rowData = [
                 row.taskID ? row.taskID.toString() : '',
                 row.name || 'Unnamed Task',
                 row.description || 'No Description',
                 startDate,
                 endDate,
-                duration * 24 * 60 * 60 * 1000, // Convert duration to milliseconds
-                0, // Percent Complete
-                '' // No dependencies
+                duration * 24 * 60 * 60 * 1000,
+                0,
+                ''
             ];
             insertData.push(rowData);
         });
-
+    
         data.addRows(insertData);
-
-        let rowHeight = 30; // Height of each row in pixels
-        let padding = 20;   // Additional padding in pixels
-        let timelineHeight = 50; // Estimated height of the timeline in pixels
-        let chartHeight = tasks.length * rowHeight + padding + timelineHeight; // Total height
-
-        let containerWidth = document.querySelector('#chart_div').parentElement.offsetWidth * 0.9;
-
+    
+        // Calculate dynamic height based on the number of tasks
+        let rowHeight = 30;  // Each row is 30 pixels high
+        let padding = 50;   // Padding for the chart (timeline, headers, etc.)
+        let chartHeight = insertData.length * rowHeight + padding; // Dynamic height calculation
+    
+        let containerWidth = document.querySelector('#chart_div').parentElement.offsetWidth * 0.95;
+    
         var options = {
-            height: chartHeight,
-            width: containerWidth
+            height: chartHeight,  // Use the dynamically calculated height
+            width: containerWidth, // Adjust width to fit the container
+            gantt: {
+                trackHeight: rowHeight // Adjust row height
+            }
         };
-
+    
         var chart = new google.visualization.Gantt(document.getElementById('chart_div'));
-
+    
         chart.draw(data, options);
-
-        // Adjust tooltip z-index on hover
+    
         google.visualization.events.addListener(chart, 'onmouseover', function() {
             var tooltips = document.querySelectorAll('.google-visualization-tooltip');
+            tooltips.forEach(function (tooltip) {
+                tooltip.style.zIndex = '1000';  // Ensure tooltips appear above other elements
+            });
         });
     }
 </script>
