@@ -86,7 +86,7 @@
                         </span>
                         <form action="/task/delete-file" method="post" style="display: inline;">
                             <input type="hidden" value="<%= file.id %>" name="fileID">
-                            <input type="hidden" value="<%= taskData.taskID %>" name="taskID">
+                            <input type="hidden" value="<%= taskData[0].taskID %>" name="taskID">
                             <button type="submit">削除</button>
                         </form>
                     </li>
@@ -100,7 +100,7 @@
                 <h2>ファイルアップロード</h2>
                 <form method="post" enctype="multipart/form-data" action="/task/upload-file">
                     <div class="file-upload">
-                        <input type="hidden" name="taskID" value="t9645tnn128">
+                        <input type="hidden" name="taskID" value="<%= taskData[0].taskID%>">
                         <input type="file" name="taskFile" id="taskFile" accept=".docx,.xlsx,.pdf" required>
                         <label for="taskFile">ファイルを選択</label>
                         <button type="submit">Upload File</button>

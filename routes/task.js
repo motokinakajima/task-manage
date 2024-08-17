@@ -192,6 +192,20 @@ router.post('/upload-file', upload.single('taskFile'), async(req, res, next) => 
     const fileUrl = `${supabaseUrl}/storage/v1/object/public/${data.fullPath}`;
     const { error: dbError } = await supabase.from('task_files').insert({ taskID: taskID , fileName: fileName , fileUrl: fileUrl });
 
+    const { data: taskData, error: taskError } = await supabase.from('tasks').select('*').eq('taskID', taskID);
+
+    const { data: users, _error } = await supabase.from('users').select('*');
+
+    users.forEach(user => {
+        if(user.userID===taskData[0].responsible || user.userID===taskData[0].accountable || user.userID===taskData[0].consulted || user.userID===taskData[0].informed){
+            let userName = ""
+            users.forEach(currentUser => { if(currentUser.userID === req.session.userID){ userName = currentUser.name }; });
+            emailSender.sendEmail(user.email, "タスクにファイルが添付されました", "", `<h1>ファイルの添付</h1><p><a href="https://task-manager-seven-pink.vercel.app/task?tid=${taskID}">${taskData[0].name}</a>というタスクに<a href="${fileUrl}">${sanitizedFileName}</a>が添付されました。確認しましょう。</p><br><p>変更者：${userName}</p>`)
+            .then(() => {console.log("sent email succesfully");})
+            .catch((error) => {console.error('Failed to send email:', error);});
+        }
+    });
+
     res.redirect(`/task?tid=${taskID}`);
 });
 
