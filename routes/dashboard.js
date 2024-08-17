@@ -20,10 +20,10 @@ router.get('/', async (req, res, next) => {
         const { data: projectData, error: error } = await supabase.from('projects').select('*');
         const { data: responsibleTask, error: _error } = await supabase.from('tasks').select('*').eq('responsible', req.session.userID);
         const { data: accountableTask, error: __error } = await supabase.from('tasks').select('*').eq('accountable', req.session.userID);
-        const { data: consultedTask, error: ___rror } = await supabase.from('tasks').select('*').eq('consulted', req.session.userID);
+        const { data: consultedTask, error: ___error } = await supabase.from('tasks').select('*').eq('consulted', req.session.userID);
         const { data: informedTask, error: ____error } = await supabase.from('tasks').select('*').eq('informed', req.session.userID);
         const { data: users, error: _____error } = await supabase.from('users').select('userID, name');
-        res.render('dashboard', { projects: projectData, userID: req.session.userID, userName: req.session.userName, userID: req.session.userID, responsibleTask: responsibleTask, accountableTask: accountableTask, consultedTask: consultedTask, informedTask: informedTask , users: users });
+        res.render('dashboard', { projects: projectData, userID: req.session.userID, userName: req.session.userName, responsibleTask: responsibleTask, accountableTask: accountableTask, consultedTask: consultedTask, informedTask: informedTask , users: users });
     }
 });
 
@@ -50,7 +50,7 @@ router.post('/create-project', async (req, res, next) => {
 
     userData.forEach(user => {
         let userName = ""
-        userData.forEach(currentUser => { if(currentUser.userID === req.session.userID){ userName = currentUser.name }; });
+        userData.forEach(currentUser => { if(currentUser.userID === req.session.userID){ userName = currentUser.name } });
         emailSender.sendEmail(user.email, "新規プロジェクトが作成されました", "", `<h1>プロジェクト作成</h1><p><a href="https://task-manager-seven-pink.vercel.app/project?pid=${newProjectID}">${project_name}</a>というプロジェクトが作成されました。確認しましょう。</p><br><p>作成者：${userName}</p>`).then(() => {console.log("sent email succesfully");}).catch((error) => {console.error('Failed to send email:', error);});
     });
 

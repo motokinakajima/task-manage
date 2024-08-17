@@ -73,6 +73,25 @@ router.post('/', async (req,res,next) => {
             comments: commentData
         }
         res.redirect(`/task?tid=${t_id}`);
+
+        const { data: users, _error } = await supabase.from('users').select('*');
+
+        users.forEach(user => {
+            let roles = "";
+            if(user.userID===taskData[0].responsible){ roles+=", responsible"; }
+            if(user.userID===taskData[0].accountable){ roles+=", accountable"; }
+            if(user.userID===taskData[0].consulted){ roles+=", consulted"; }
+            if(user.userID===taskData[0].informed){ roles+=", informed"; }
+            if(roles!==""){ roles = roles.substring(2); }
+
+            if(roles !== ""){
+                let userName = ""
+                users.forEach(currentUser => { if(currentUser.userID === req.session.userID){ userName = currentUser.name } });
+                emailSender.sendEmail(user.email, "タスクにコメントが着きました", "", `<h1>コメントの投稿</h1><p><a href="https://task-manager-seven-pink.vercel.app/task?tid=${t_id}">${taskData[0].name}</a>というタスクに${userName}がコメントをしました。確認しましょう。</p>`)
+                    .then(() => {console.log("sent email successfully");})
+                    .catch((error) => {console.error('Failed to send email:', error);});
+            }
+        });
     }
 });
 
@@ -88,8 +107,7 @@ router.get('/edit-task', async (req, res, next) => {
     if(!t_id || !req.session.userID || !projectID[0]){
         res.redirect('/dashboard');
     }else{
-        const p_id = projectID[0]['projectID'];
-        req.session.currentProject = p_id;
+        req.session.currentProject = projectID[0]['projectID'];
         req.session.currentTask = t_id;
         const { data: taskData, error } = await supabase.from('tasks').select('*').eq('taskID', t_id);
         const { data, _error } = await supabase.from('users').select('userID, name');
@@ -128,7 +146,7 @@ router.post('/edit-task', async (req, res, next) => {
                 let userName = ""
                 users.forEach(currentUser => { if(currentUser.userID === req.session.userID){ userName = currentUser.name }; });
                 emailSender.sendEmail(user.email, "タスクが編集されました", "", `<h1>タスクの更新</h1><p><a href="https://task-manager-seven-pink.vercel.app/task?tid=${t_id}">${task_name}</a>というタスクに${roles}として割り当てられました。確認しましょう。</p><br><p>作成者：${userName}</p>`)
-                .then(() => {console.log("sent email succesfully");})
+                .then(() => {console.log("sent email successfully");})
                 .catch((error) => {console.error('Failed to send email:', error);});
             }
         });
@@ -159,7 +177,7 @@ router.post('/update-progress', async (req, res, next) => {
             let userName = ""
             users.forEach(currentUser => { if(currentUser.userID === req.session.userID){ userName = currentUser.name }; });
             emailSender.sendEmail(user.email, "タスクの進行度が編集されました", "", `<h1>タスクの進行度の更新</h1><p><a href="https://task-manager-seven-pink.vercel.app/task?tid=${taskID}">${taskData[0].name}</a>というタスクの進行度が${getProgress(taskData[0].completion)}から${getProgress(parseInt(progress))}に変わりました。確認しましょう。</p><br><p>変更者：${userName}</p>`)
-            .then(() => {console.log("sent email succesfully");})
+            .then(() => {console.log("sent email successfully");})
             .catch((error) => {console.error('Failed to send email:', error);});
         }
     });
