@@ -4,6 +4,7 @@ const sqlite3 = require('sqlite3');
 const path = require('path');
 const EmailSender = require('../EmailSender');
 const { createClient } = require('@supabase/supabase-js');
+const { info } = require('console');
 require('dotenv').config();
 
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -17,9 +18,12 @@ router.get('/', async (req, res, next) => {
         res.redirect('/')
     }else {
         const { data: projectData, error: error } = await supabase.from('projects').select('*');
-        const { data: taskData, error: _error } = await supabase.from('tasks').select('*').eq('responsible', req.session.userID);
-        const { data: users, error: __error } = await supabase.from('users').select('userID, name');
-        res.render('dashboard', { projects: projectData, userID: req.session.userID, userName: req.session.userName, userID: req.session.userID, taskData: taskData, users: users });
+        const { data: responsibleTask, error: _error } = await supabase.from('tasks').select('*').eq('responsible', req.session.userID);
+        const { data: accountableTask, error: __error } = await supabase.from('tasks').select('*').eq('accountable', req.session.userID);
+        const { data: consultedTask, error: ___rror } = await supabase.from('tasks').select('*').eq('consulted', req.session.userID);
+        const { data: informedTask, error: ____error } = await supabase.from('tasks').select('*').eq('informed', req.session.userID);
+        const { data: users, error: _____error } = await supabase.from('users').select('userID, name');
+        res.render('dashboard', { projects: projectData, userID: req.session.userID, userName: req.session.userName, userID: req.session.userID, responsibleTask: responsibleTask, accountableTask: accountableTask, consultedTask: consultedTask, informedTask: informedTask , users: users });
     }
 });
 

@@ -21,6 +21,7 @@
                 <ul>
                     <a href="/"><li>ホーム</li></a>
                     <a href="/dashboard"><li>ダッシュボード</li></a>
+                    <a href="/project/projects"><li>プロジェクト一覧</li></a>
                     <a href="/task/tasks"><li>タスク一覧</li></a>
                     <a href="/profile?uid=<%= userID %>"><li>マイページ</li></a>
                     <a href="/login/logout"><li>ログアウト</li></a>
@@ -44,35 +45,8 @@
             </div>
 
             <div class="section">
-                <h2>プロジェクト一覧</h2>
-                <% if(projects && projects.length > 0) { %>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>プロジェクト名</th>
-                                <th>概要</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        <% projects.forEach(row => { %>
-                            <tr>
-                                <td><a href="/project?pid=<%= row.projectID %>"><%= row.name %></a></td>
-                                <td><%= row.description %></td>
-                                <td><form action="/project/delete-project" method="post"><input type="hidden" name="projectID" value="<%= row.projectID%>"><button type="submit">削除</button></form></td>
-                            </tr>
-                        <% }) %>
-                        </tbody>
-                    </table>
-                <% }else { %>
-                    <p>プロジェクトはまだありません</p>
-                <% } %>
-                <form action="dashboard/create-project" method="get"><button type="submit">プロジェクトを作成</button></form>
-            </div>
-
-            <div class="section">
-                <h2>自分に割り当てられたタスク一覧</h2>
-                <% if(taskData && taskData.length > 0) { %>
+                <h2>自分に割り当てられたタスク一覧 (responsible)</h2>
+                <% if(responsibleTask && responsibleTask.length > 0) { %>
                 <table id="taskTable">
                     <thead>
                         <tr>
@@ -84,7 +58,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <% taskData.forEach(row => { %>
+                        <% responsibleTask.forEach(row => { %>
                             <tr>
                                 <td><a href="/task?tid=<%= row.taskID %>"><%= row.name %></a></td>
                                 <td><%= row.description %></td>
@@ -93,9 +67,141 @@
                                     <% if(row.completion === 1) { %>
                                         完了
                                     <% } else if(row.completion === 0) { %>
-                                        作業中
+                                        進行中
                                     <% } else { %>
-                                        始まってすらいない
+                                        開始前
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <form action="/task/delete-task" method="post">
+                                        <input type="hidden" name="taskID" value="<%= row.taskID %>">
+                                        <button type="submit">削除</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+                <div id="chart_div"></div>
+                <% } else { %>
+                    <p>表示するプロジェクトがありません</p>
+                <% } %>
+            </div>
+
+            <div class="section">
+                <h2>自分に割り当てられたタスク一覧 (accountable)</h2>
+                <% if(accountableTask && accountableTask.length > 0) { %>
+                <table id="taskTable">
+                    <thead>
+                        <tr>
+                            <th>タスク名</th>
+                            <th>概要</th>
+                            <th>期限</th>
+                            <th>進行度</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% accountableTask.forEach(row => { %>
+                            <tr>
+                                <td><a href="/task?tid=<%= row.taskID %>"><%= row.name %></a></td>
+                                <td><%= row.description %></td>
+                                <td><%= row.due %></td>
+                                <td data-completion="<%= row.completion %>">
+                                    <% if(row.completion === 1) { %>
+                                        完了
+                                    <% } else if(row.completion === 0) { %>
+                                        進行中
+                                    <% } else { %>
+                                        開始前
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <form action="/task/delete-task" method="post">
+                                        <input type="hidden" name="taskID" value="<%= row.taskID %>">
+                                        <button type="submit">削除</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+                <div id="chart_div"></div>
+                <% } else { %>
+                    <p>表示するプロジェクトがありません</p>
+                <% } %>
+            </div>
+
+            <div class="section">
+                <h2>自分に割り当てられたタスク一覧 (consulted)</h2>
+                <% if(consultedTask && consultedTask.length > 0) { %>
+                <table id="taskTable">
+                    <thead>
+                        <tr>
+                            <th>タスク名</th>
+                            <th>概要</th>
+                            <th>期限</th>
+                            <th>進行度</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% consultedTask.forEach(row => { %>
+                            <tr>
+                                <td><a href="/task?tid=<%= row.taskID %>"><%= row.name %></a></td>
+                                <td><%= row.description %></td>
+                                <td><%= row.due %></td>
+                                <td data-completion="<%= row.completion %>">
+                                    <% if(row.completion === 1) { %>
+                                        完了
+                                    <% } else if(row.completion === 0) { %>
+                                        進行中
+                                    <% } else { %>
+                                        開始前
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <form action="/task/delete-task" method="post">
+                                        <input type="hidden" name="taskID" value="<%= row.taskID %>">
+                                        <button type="submit">削除</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+                <div id="chart_div"></div>
+                <% } else { %>
+                    <p>表示するプロジェクトがありません</p>
+                <% } %>
+            </div>
+
+            <div class="section">
+                <h2>自分に割り当てられたタスク一覧 (informed)</h2>
+                <% if(informedTask && informedTask.length > 0) { %>
+                <table id="taskTable">
+                    <thead>
+                        <tr>
+                            <th>タスク名</th>
+                            <th>概要</th>
+                            <th>期限</th>
+                            <th>進行度</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% informedTask.forEach(row => { %>
+                            <tr>
+                                <td><a href="/task?tid=<%= row.taskID %>"><%= row.name %></a></td>
+                                <td><%= row.description %></td>
+                                <td><%= row.due %></td>
+                                <td data-completion="<%= row.completion %>">
+                                    <% if(row.completion === 1) { %>
+                                        完了
+                                    <% } else if(row.completion === 0) { %>
+                                        進行中
+                                    <% } else { %>
+                                        開始前
                                     <% } %>
                                 </td>
                                 <td>

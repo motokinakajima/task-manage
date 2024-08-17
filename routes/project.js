@@ -34,6 +34,16 @@ router.get('/', async (req, res, next) => {
     }
 });
 
+router.get('/projects', async (req, res, next) => {
+    if(!req.session.userID || !req.session.userName){
+        res.redirect('/')
+    }else {
+        const { data: projectData, error: error } = await supabase.from('projects').select('*');
+        const { data: users, error: _error } = await supabase.from('users').select('userID, name');
+        res.render('projects', { projects: projectData, userID: req.session.userID, userName: req.session.userName, userID: req.session.userID, users: users });
+    }
+});
+
 router.get('/create-task', async (req,res,next) => {
     const { data, error } = await supabase.from('users').select('userID, name');
     req.session.userID? res.render('create_task' ,{ users: data, userID: req.session.userID }) : res.redirect('/dashboard');
