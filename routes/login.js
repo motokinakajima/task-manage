@@ -48,7 +48,7 @@ router.post('/create', async (req, res) => {
 
     const { data, error } = await supabase.from('users').select('*').eq('email',mail);
 
-    if(data[0] || keyword !== "cykablyat"){
+    if(data[0] || keyword !== process.env.LOGIN_KEY){
         res.redirect('/login/create');
     }else{
         let newUserId;
