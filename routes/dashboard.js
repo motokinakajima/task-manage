@@ -51,7 +51,7 @@ router.post('/create-project', async (req, res, next) => {
     userData.forEach(user => {
         let userName = ""
         userData.forEach(currentUser => { if(currentUser.userID === req.session.userID){ userName = currentUser.name } });
-        emailSender.sendEmail(user.email, "新規プロジェクトが作成されました", "", `<h1>プロジェクト作成</h1><p><a href="https://task-manager-seven-pink.vercel.app/project?pid=${newProjectID}">${project_name}</a>というプロジェクトが作成されました。確認しましょう。</p><br><p>作成者：${userName}</p>`).then(() => {console.log("sent email succesfully");}).catch((error) => {console.error('Failed to send email:', error);});
+        emailSender.sendEmail(user.email, "新規プロジェクトが作成されました", "", `<h1>プロジェクト作成</h1><p><a href="https://kpc-manager.vercel.app/project?pid=${newProjectID}">${project_name}</a>というプロジェクトが作成されました。確認しましょう。</p><br><p>作成者：${userName}</p>`).then(() => {console.log("sent email succesfully");}).catch((error) => {console.error('Failed to send email:', error);});
     });
 
 });
