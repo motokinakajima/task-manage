@@ -87,7 +87,7 @@ router.post('/create-task', async (req, res, next) => {
             if(roles !== ""){
                 let userName = ""
                 users.forEach(currentUser => { if(currentUser.userID === req.session.userID){ userName = currentUser.name }; });
-                emailSender.sendEmail(user.email, "タスクが割り当てられました", "", `<h1>タスク割り当て</h1><p><a href="https://kpc-manager.vercel.app/task?tid=${newTaskID}">${task_name}</a>というタスクに${roles}として割り当てられました。確認しましょう。</p><br><p>作成者：${userName}</p>`)
+                emailSender.sendEmail(user.email, "タスクが割り当てられました", "", `<h1>タスク割り当て</h1><p><a href="https://task-manager-seven-pink.vercel.app/task?tid=${newTaskID}">${task_name}</a>というタスクに${roles}として割り当てられました。確認しましょう。</p><br><p>作成者：${userName}</p>`)
                 .then(() => {console.log("sent email successfully");})
                 .catch((error) => {console.error('Failed to send email:', error);});
             }

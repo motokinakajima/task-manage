@@ -87,7 +87,7 @@ router.post('/', async (req,res,next) => {
             if(roles !== ""){
                 let userName = ""
                 users.forEach(currentUser => { if(currentUser.userID === req.session.userID){ userName = currentUser.name } });
-                emailSender.sendEmail(user.email, "タスクにコメントが着きました", "", `<h1>コメントの投稿</h1><p><a href="https://kpc-manager.vercel.app/task?tid=${t_id}">${taskData[0].name}</a>というタスクに${userName}がコメントをしました。確認しましょう。</p>`)
+                emailSender.sendEmail(user.email, "タスクにコメントが着きました", "", `<h1>コメントの投稿</h1><p><a href="https://task-manager-seven-pink.vercel.app/task?tid=${t_id}">${taskData[0].name}</a>というタスクに${userName}がコメントをしました。確認しましょう。</p>`)
                     .then(() => {console.log("sent email successfully");})
                     .catch((error) => {console.error('Failed to send email:', error);});
             }
