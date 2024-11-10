@@ -44,7 +44,9 @@
                     <tr>
                         <th>タスク名</th>
                         <th>概要</th>
-                        <th>期限</th>
+                        <th>期限
+                            <button id="sortDueDate" onclick="sortTasksByDueDate()">↕</button>
+                        </th>
                         <th>責任者
                             <div class="selector">
                                 <select id="personFilter">
@@ -102,6 +104,8 @@
 </body>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
+        let isAsc = true; // Sort order flag
+
         function filterTasks() {
             let statusFilterValue = document.getElementById('statusFilter').value;
             let personFilterValue = document.getElementById('personFilter').value;
@@ -121,7 +125,20 @@
             }
         }
 
-        // Add event listeners
+        function sortTasksByDueDate() {
+            let table = document.getElementById('taskTable').getElementsByTagName('tbody')[0];
+            let rows = Array.from(table.getElementsByTagName('tr'));
+
+            rows.sort(function(a, b) {
+                let dateA = new Date(a.getElementsByTagName('td')[2].innerText);
+                let dateB = new Date(b.getElementsByTagName('td')[2].innerText);
+                return isAsc ? dateA - dateB : dateB - dateA;
+            });
+
+            isAsc = !isAsc; // Toggle the sort order
+            rows.forEach(row => table.appendChild(row)); // Reorder rows
+        }
+
         document.getElementById('statusFilter').addEventListener('change', filterTasks);
         document.getElementById('personFilter').addEventListener('change', filterTasks);
     });
@@ -204,6 +221,8 @@
             });
         });
     }
+
+
     
 </script>
 </html>
