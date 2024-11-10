@@ -80,13 +80,13 @@
                                 <div hidden><%= row.responsible %></div>
                             </td>
                             <td data-completion="<%= row.completion %>">
-                                <% if(row.completion === 1) { %>
-                                    完了
-                                <% } else if(row.completion === 0) { %>
-                                    作業中
-                                <% } else { %>
-                                    開始前
-                                <% } %>
+                                <div class="selector">
+                                    <select name="progress" id="<%= row.taskID %>_progress_selector">
+                                        <option value="-1" <%= row.completion === -1 ? 'selected' : ''%>>開始前</option>
+                                        <option value="0" <%= row.completion === 0 ? 'selected' : ''%>>進行中</option>
+                                        <option value="1" <%= row.completion === 1 ? 'selected' : ''%>>完了</option>
+                                    </select>
+                                </div>
                             </td>
                         </tr>
                     <% }) %>
@@ -225,7 +225,30 @@
         });
     }
 
-
-    
+    <%taskData.forEach(row => {%>
+    {
+        const taskID = "<%= row.taskID%>";
+        document.getElementById("<%= row.taskID %>_progress_selector").addEventListener('change', function() {
+            const selectedValue = this.value;
+            const data = { taskID: taskID, progress: selectedValue };
+            fetch('/task/update-progress', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data) // Send the selected value as JSON
+            })
+                .then(response => response.json())
+                .then(result => {
+                    console.log('Success:', result);
+                    // Reload the page after the server has processed the request
+                    location.reload();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        });
+    }
+    <%});%>
 </script>
 </html>
