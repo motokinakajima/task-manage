@@ -25,7 +25,7 @@ router.get('/', async (req, res, next) => {
 
         const data = {
             projectData: projectData,
-            tasks: taskData,
+            taskData: taskData,
             userID: req.session.userID,
             users: userData
         };
