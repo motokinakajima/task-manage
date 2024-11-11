@@ -145,7 +145,7 @@ router.post('/edit-task', async (req, res, next) => {
             if(roles !== ""){
                 let userName = ""
                 users.forEach(currentUser => { if(currentUser.userID === req.session.userID){ userName = currentUser.name }; });
-                emailSender.sendEmail(user.email, "タスクが編集されました", "", `<h1>タスクの更新</h1><p><a href="https://task-manager-seven-pink.vercel.app/task?tid=${t_id}">${task_name}</a>というタスクに${roles}として割り当てられました。確認しましょう。</p><br><p>作成者：${userName}</p>`)
+                emailSender.sendEmail(user.email, "タスクが編集されました", "", `<h1>タスクの更新</h1><p><a href="${process.env.PRODUCT_URL}task?tid=${t_id}">${task_name}</a>というタスクに${roles}として割り当てられました。確認しましょう。</p><br><p>作成者：${userName}</p>`)
                 .then(() => {console.log("sent email successfully");})
                 .catch((error) => {console.error('Failed to send email:', error);});
             }
@@ -176,7 +176,7 @@ router.post('/update-progress', async (req, res, next) => {
         if(user.userID===taskData[0].responsible || user.userID===taskData[0].accountable || user.userID===taskData[0].consulted || user.userID===taskData[0].informed){
             let userName = ""
             users.forEach(currentUser => { if(currentUser.userID === req.session.userID){ userName = currentUser.name }; });
-            emailSender.sendEmail(user.email, "タスクの進行度が編集されました", "", `<h1>タスクの進行度の更新</h1><p><a href="https://task-manager-seven-pink.vercel.app/task?tid=${taskID}">${taskData[0].name}</a>というタスクの進行度が${getProgress(taskData[0].completion)}から${getProgress(parseInt(progress))}に変わりました。確認しましょう。</p><br><p>変更者：${userName}</p>`)
+            emailSender.sendEmail(user.email, "タスクの進行度が編集されました", "", `<h1>タスクの進行度の更新</h1><p><a href="${process.env.PRODUCT_URL}task?tid=${taskID}">${taskData[0].name}</a>というタスクの進行度が${getProgress(taskData[0].completion)}から${getProgress(parseInt(progress))}に変わりました。確認しましょう。</p><br><p>変更者：${userName}</p>`)
             .then(() => {console.log("sent email successfully");})
             .catch((error) => {console.error('Failed to send email:', error);});
         }
@@ -218,7 +218,7 @@ router.post('/upload-file', upload.single('taskFile'), async(req, res, next) => 
         if(user.userID===taskData[0].responsible || user.userID===taskData[0].accountable || user.userID===taskData[0].consulted || user.userID===taskData[0].informed){
             let userName = ""
             users.forEach(currentUser => { if(currentUser.userID === req.session.userID){ userName = currentUser.name }; });
-            emailSender.sendEmail(user.email, "タスクにファイルが添付されました", "", `<h1>ファイルの添付</h1><p><a href="https://task-manager-seven-pink.vercel.app/task?tid=${taskID}">${taskData[0].name}</a>というタスクに<a href="${fileUrl}">${sanitizedFileName}</a>が添付されました。確認しましょう。</p><br><p>変更者：${userName}</p>`)
+            emailSender.sendEmail(user.email, "タスクにファイルが添付されました", "", `<h1>ファイルの添付</h1><p><a href="${process.env.PRODUCT_URL}task?tid=${taskID}">${taskData[0].name}</a>というタスクに<a href="${fileUrl}">${sanitizedFileName}</a>が添付されました。確認しましょう。</p><br><p>変更者：${userName}</p>`)
             .then(() => {console.log("sent email succesfully");})
             .catch((error) => {console.error('Failed to send email:', error);});
         }
