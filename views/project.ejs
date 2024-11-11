@@ -92,9 +92,11 @@
                         <% }) %>
                         </tbody>
                     </table>
+                    <form action="/project/create-task" method="get"><button type="submit">タスクを作成</button></form>
                     <div id="chart_div"></div>
                 <% } else { %>
-                    <p>表示するプロジェクトがありません</p>
+                    <p>表示するタスクがありません</p>
+                    <form action="/project/create-task" method="get"><button type="submit">タスクを作成</button></form>
                 <% } %>
             </div>
         </div>
