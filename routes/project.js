@@ -82,8 +82,6 @@ router.post('/create-task', async (req, res, next) => {
             if(user.userID===informed){ roles+=", informed"; }
             if(roles!==""){ roles = roles.substring(2); }
 
-            console.log(`roles: ${roles}`)
-
             if(roles !== ""){
                 let userName = ""
                 users.forEach(currentUser => { if(currentUser.userID === req.session.userID){ userName = currentUser.name }; });
