@@ -45,6 +45,33 @@
             </div>
 
             <div class="section">
+                <h2>プロジェクト一覧</h2>
+                <% if(projects && projects.length > 0) { %>
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>プロジェクト名</th>
+                            <th>概要</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <% projects.forEach(row => { %>
+                            <tr>
+                                <td><a href="/project?pid=<%= row.projectID %>"><%= row.name %></a></td>
+                                <td><%= row.description %></td>
+                                <td><form action="/project/delete-project" method="post"><input type="hidden" name="projectID" value="<%= row.projectID%>"><button type="submit">削除</button></form></td>
+                            </tr>
+                        <% }) %>
+                        </tbody>
+                    </table>
+                <% }else { %>
+                    <p>プロジェクトはまだありません</p>
+                <% } %>
+                <form action="/dashboard/create-project" method="get"><button type="submit">プロジェクトを作成</button></form>
+            </div>
+
+            <div class="section">
                 <h2>自分に割り当てられたタスク一覧 (responsible)</h2>
                 <% if(responsibleTask && responsibleTask.length > 0) { %>
                 <table id="taskTable">
