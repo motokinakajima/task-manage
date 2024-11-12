@@ -23,17 +23,21 @@ router.get('/create', (req, res) => {
 router.post('/', async (req, res) => {
     const { mail, password } = req.body;
 
-    const { data, error } = await supabase.from('users').select('*').eq('email', mail);
-
-    if(data){
-        if(data[0].email === mail && data[0].password === password){
+    const {data, error: selectError} = await supabase.from('users').select('*').eq('email', mail);
+    if (selectError) {
+        res.render('error', {
+            message: 'An error occurred while fetching user data',
+            error: selectError
+        });
+    } else if (data) {
+        if (data[0].email === mail && data[0].password === password) {
             req.session.userID = data[0].userID;
             req.session.userName = data[0].name;
             res.redirect('/dashboard');
-        }else{
+        } else {
             res.redirect('/login');
         }
-    }else{
+    } else {
         res.redirect('/dashboard');
     }
 });
@@ -72,6 +76,16 @@ router.post('/create', async (req, res) => {
             const fileName = `${newUserId}.jpg`;
 
             const { data: uploadData, error: uploadError } = await supabase.storage.from('icons').upload(fileName, fileBuffer, { contentType: 'image/jpeg' });
+
+            if (uploadError) {
+                res.render('error', {
+                    message: 'An error occurred while uploading the icon',
+                    error: uploadError
+                });
+                return;
+            }
+
+            res.redirect("/dashboard");
 
             res.redirect("/dashboard");
         }else{
