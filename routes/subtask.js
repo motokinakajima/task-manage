@@ -52,11 +52,38 @@ router.get('/', async (req, res, next) => {
                 subtaskData: subtaskData,
                 userID: req.session.userID,
                 users: userData,
-                comments: commentData
+                comments: commentData,
+                supabaseURL: process.env.SUPABASE_URL
             };
 
             res.render('subtask', returnData);
         }
+    }
+});
+
+router.post('/', async (req, res, next) => {
+    const comment = req.body['comment'];
+    const commenterID = req.session.userID;
+    const commenterName = req.session.userName;
+    const s_id = req.session.currentSubtask;
+    const p_id = req.session.currentProject;
+    if (!s_id || !p_id || !comment || !commenterID || !commenterName) {
+        res.redirect('/dashboard');
+    }else {
+        const { data: subtaskData, error: subtaskError } = await supabase.from('subtasks').select('*').eq('subtaskID', s_id);
+
+        const { error: insertError } = await supabase.from('comments').insert({ taskID:s_id, comment: comment, commenter_id: commenterID, commenter_name: commenterName });
+        res.redirect(`/subtask?sid=${s_id}`);
+
+        const { data: users, _error } = await supabase.from('users').select('*');
+
+        users.forEach(user => {
+            if(user.userID === subtaskData[0].responsible){
+                emailSender.sendEmail(user.email, "コメントが追加されました", "", `<h1>コメントの追加</h1><p><a href="${process.env.PRODUCT_URL}subtask?sid=${s_id}">${subtaskData[0].name}</a>というサブタスクにコメントが追加されました。確認しましょう。</p><br><p>作成者：${commenterName}</p>`)
+                    .then(() => {console.log("sent email successfully");})
+                    .catch((error) => {console.error('Failed to send email:', error);});
+            }
+        });
     }
 });
 
@@ -83,7 +110,6 @@ router.get('/edit-subtask', async (req, res, next) => {
 
 router.post('/edit-subtask', async (req, res, next) => {
     const { subtask_name, subtask_description, start_date, due_date, priority, responsible, progress } = req.body;
-    const t_id = req.session.currentTask;
     const s_id = req.session.currentSubtask;
     if (!s_id || !subtask_name || !subtask_description || !start_date || !due_date || !priority || !responsible || !progress) {
         res.redirect('/dashboard');
@@ -110,5 +136,7 @@ router.post('/edit-subtask', async (req, res, next) => {
         });
     }
 });
+
+
 
 module.exports = router;

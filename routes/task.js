@@ -65,15 +65,8 @@ router.post('/', async (req,res,next) => {
     if(!comment || !commenterID || !commenterName || !t_id || !p_id){
         res.redirect('/');
     }else {
-        const { data: projectData, error: projectError } = await supabase.from('projects').select('*').eq('projectID', p_id);
         const { data: taskData, error: taskError } = await supabase.from('tasks').select('*').eq('taskID', t_id);
-        const { data: commentData, error: commentError } = await supabase.from('comments').select('*').eq('taskID', t_id);
         const { error: insertError } = await supabase.from('comments').insert({ taskID: t_id, comment: comment, commenter_id: commenterID, commenter_name: commenterName });
-        const returnData = {
-            projectData: projectData,
-            taskData: taskData,
-            comments: commentData
-        }
         res.redirect(`/task?tid=${t_id}`);
 
         const { data: users, _error } = await supabase.from('users').select('*');
@@ -285,4 +278,5 @@ router.post('/delete-file', async (req, res, next) => {
 
     res.redirect(`/task?tid=${req.session.currentTask}`);
 });
+
 module.exports = router;
