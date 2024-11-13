@@ -60,4 +60,25 @@ router.get('/', async (req, res, next) => {
     }
 });
 
+router.get('/edit-subtask', async (req, res, next) => {
+    const s_id = req.query.sid;
+    const { data: taskID, error: taskError } = await supabase.from('subtasks').select('taskID').eq('subtaskID', s_id);
+    if(!s_id || !taskID[0]['taskID']){
+        res.redirect('/dashboard');
+    }else {
+        const { data: projectID, error: projectError } = await supabase.from('tasks').select('projectID').eq('taskID', taskID[0]['taskID']);
+        if(!projectID[0]['projectID']){
+            res.redirect('/dashboard');
+        }
+        const t_id = taskID[0]['taskID'];
+        const p_id = projectID[0]['projectID'];
+        req.session.currentSubtask = s_id;
+        req.session.currentTask = t_id;
+        req.session.currentProject = p_id;
+        const { data: subtaskData, error: subtaskError } = await supabase.from('subtasks').select('*').eq('subtaskID', s_id);
+        const { data: userData, error: userError } = await supabase.from('users').select('userID, name');
+        res.render('edit_subtask', { subtaskData: subtaskData, users: userData, userID: req.session.userID });
+    }
+});
+
 module.exports = router;

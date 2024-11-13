@@ -69,6 +69,7 @@
                 期限：<%= subtaskData[0].due %><br>
                 Responsible：<% users.forEach(row => { %><%= row.userID === subtaskData[0].responsible? row.name : ''%><% }) %><br>
             </p>
+            <div><a href="/subtask/edit-subtask?sid=<%= subtaskData[0].subtaskID %>"><button>サブタスクを編集</button></a></div>
         </div>
 
         <div class="section">
