@@ -408,3 +408,7 @@ form button {
 .section h2.task-heading {
     background-color: #e74c3c; /* Color for task heading */
 }
+
+.section h2.subtask-heading {
+    background-color: #e7007c; /* Color for task heading */
+}
