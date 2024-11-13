@@ -167,6 +167,9 @@
                     </form>
                 <% } else { %>
                     <p>表示するサブタスクがありません</p>
+                    <form action="/task/create-subtask" method="get">
+                        <button type="submit">サブタスクを作成</button>
+                    </form>
                 <% } %>
             </div>
 
