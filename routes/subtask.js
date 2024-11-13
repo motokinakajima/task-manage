@@ -27,7 +27,7 @@ function getProgress(input){
 router.get('/', async (req, res, next) => {
     const s_id = req.query.sid;
     const { data: taskID, error: taskError } = await supabase.from('subtasks').select('taskID').eq('subtaskID', s_id);
-    if(!s_id || taskID[0]['taskID']){
+    if(!s_id || !taskID[0]['taskID']){
         res.redirect('/dashboard');
     }else {
         const { data: projectID, error: projectError } = await supabase.from('tasks').select('projectID').eq('taskID', taskID[0]['taskID']);
