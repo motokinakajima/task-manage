@@ -305,3 +305,11 @@ a {
 a:hover {
     color: #2980b9;
 }
+
+.section h2.project-heading {
+    background-color: #3498db; /* Color for project heading */
+}
+
+.section h2.task-heading {
+    background-color: #e74c3c; /* Color for task heading */
+}
