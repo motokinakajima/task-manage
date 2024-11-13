@@ -81,4 +81,34 @@ router.get('/edit-subtask', async (req, res, next) => {
     }
 });
 
+router.post('/edit-subtask', async (req, res, next) => {
+    const { subtask_name, subtask_description, start_date, due_date, priority, responsible, progress } = req.body;
+    const t_id = req.session.currentTask;
+    const s_id = req.session.currentSubtask;
+    if (!s_id || !subtask_name || !subtask_description || !start_date || !due_date || !priority || !responsible || !progress) {
+        res.redirect('/dashboard');
+    } else {
+        const { data: subtaskData, error: subtaskError } = await supabase.from('subtasks').select('completion').eq('subtaskID', s_id);
+
+        if(subtaskData[0].completion !== progress){
+            const { _error } = await supabase.from('task_log').insert({ description: `updated progress at subtask: ${subtask_name} (${s_id}) from ${getProgress(subtaskData[0].completion)} to ${getProgress(parseInt(progress))}` });
+        }
+
+        const { error } = await supabase.from('subtasks').update({ name: subtask_name, description: subtask_description, start: start_date, due: due_date, priority: priority, responsible: responsible, completion: parseInt(progress) }).eq('subtaskID', s_id);
+        res.redirect(`/subtask?sid=${s_id}`);
+
+        const { data: users, _error } = await supabase.from('users').select('*');
+
+        users.forEach(user => {
+            if(user.userID === responsible){
+                let userName = ""
+                users.forEach(currentUser => { if(currentUser.userID === req.session.userID){ userName = currentUser.name } });
+                emailSender.sendEmail(user.email, "サブタスクが編集されました", "", `<h1>サブタスクの更新</h1><p><a href="${process.env.PRODUCT_URL}subtask?sid=${s_id}">${subtask_name}</a>というサブタスクにResponsibileとして割り当てられました。確認しましょう。</p><br><p>作成者：${userName}</p>`)
+                    .then(() => {console.log("sent email successfully");})
+                    .catch((error) => {console.error('Failed to send email:', error);});
+            }
+        });
+    }
+});
+
 module.exports = router;
