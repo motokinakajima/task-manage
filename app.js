@@ -21,6 +21,7 @@ const loginRouter = require('./routes/login');
 const dashboardRouter = require('./routes/dashboard');
 const taskRouter = require('./routes/task');
 const profileRouter = require('./routes/profile');
+const subtaskRouter = require('./routes/subtask');
 
 // Initialize Express app
 const app = express();
@@ -58,5 +59,6 @@ app.use('/login', loginRouter);
 app.use('/dashboard', dashboardRouter);
 app.use('/task', taskRouter);
 app.use('/profile', profileRouter);
+app.use('/subtask', subtaskRouter);
 
 module.exports = app;

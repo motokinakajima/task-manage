@@ -51,7 +51,6 @@
             <div class="section">
                 <h2 class="project-heading"><%= projectData[0].name %></h2>
                 <p><%= projectData[0].description %></p>
-                <form action="/task/create-subtask" method="get"><button type="submit">サブタスクを作成</button></form>
             </div>
 
             <div class="section">
@@ -107,6 +106,70 @@
                         <button type="submit">Upload File</button>
                     </div>
                 </form>
+            </div>
+
+            <div class="section">
+                <h2>サブタスク一覧</h2>
+                <% if(subtaskData && subtaskData.length > 0) { %>
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>サブタスク名</th>
+                            <th onclick="sortTasksByDueDate()" style="cursor: pointer;">期限 <span
+                                        id="sortArrow">↑</span></th>
+                            <th>責任者
+                                <div class="selector">
+                                    <select id="personFilter">
+                                        <option value="all">All</option>
+                                        <% users.forEach(user_row => { %>
+                                            <option value="<%= user_row.userID %>"><%= user_row.name %></option>
+                                        <% }) %>
+                                    </select>
+                                </div>
+                            </th>
+                            <th>進行度
+                                <div class="selector">
+                                    <select id="statusFilter">
+                                        <option value="all">All</option>
+                                        <option value="-1">開始前</option>
+                                        <option value="0">進行中</option>
+                                        <option value="1">完了</option>
+                                    </select>
+                                </div>
+                            </th>
+                        </tr>
+                        </thead>
+                        <% subtaskData.forEach(row => { %>
+                            <tr>
+                                <td><a href="/subtask?sid=<%= row.subtaskID %>"><%= row.name %></a></td>
+                                <td><%= row.due %></td>
+                                <td>
+                                    <% users.forEach(user_row => { %>
+                                        <%= user_row.userID === row.responsible ? user_row.name : '' %>
+                                    <% }) %>
+                                    <div hidden><%= row.responsible %></div>
+                                </td>
+                                <td data-completion="<%= row.completion %>">
+                                    <div class="selector">
+                                        <select name="progress" id="<%= row.taskID %>_progress_selector">
+                                            <option value="-1" <%= row.completion === -1 ? 'selected' : '' %>>開始前
+                                            </option>
+                                            <option value="0" <%= row.completion === 0 ? 'selected' : '' %>>進行中
+                                            </option>
+                                            <option value="1" <%= row.completion === 1 ? 'selected' : '' %>>完了
+                                            </option>
+                                        </select>
+                                    </div>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </table>
+                    <form action="/task/create-subtask" method="get">
+                        <button type="submit">サブタスクを作成</button>
+                    </form>
+                <% } else { %>
+                    <p>表示するサブタスクがありません</p>
+                <% } %>
             </div>
 
             <div class="section">

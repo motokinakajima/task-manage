@@ -36,6 +36,7 @@ router.get('/', async (req,res,next) => {
 
         const { data: projectData, error: projectError } = await supabase.from('projects').select('*').eq('projectID', p_id);
         const { data: taskData, error: taskError } = await supabase.from('tasks').select('*').eq('taskID', t_id);
+        const { data: subtaskData, error: subtaskError } = await supabase.from('subtasks').select('*').eq('taskID', t_id);
         const { data: commentData, error: commentError } = await supabase.from('comments').select('*').eq('taskID', t_id);
         const { data: files, error: fileError } = await supabase.from('task_files').select('*').eq('taskID', t_id);
         const { data: userData, error } = await supabase.from('users').select('userID, name');
@@ -43,6 +44,7 @@ router.get('/', async (req,res,next) => {
         const returnData = {
             projectData: projectData,
             taskData: taskData,
+            subtaskData: subtaskData,
             comments: commentData,
             files: files,
             userID: req.session.userID,
