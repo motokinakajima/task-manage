@@ -29,7 +29,7 @@ router.post('/', async (req, res) => {
             message: 'An error occurred while fetching user data',
             error: selectError
         });
-    } else if (data) {
+    } else if (data[0]) {
         if (data[0].email === mail && data[0].password === password) {
             req.session.userID = data[0].userID;
             req.session.userName = data[0].name;
