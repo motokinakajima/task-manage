@@ -27,15 +27,16 @@ function getProgress(input){
 router.get('/', async (req,res,next) => {
     const t_id = req.query.tid;
     const { data: projectID, error } = await supabase.from('tasks').select('projectID').eq('taskID', t_id);
-    const p_id = projectID[0]['projectID'];
-    if(!t_id || !p_id){
+    if(!t_id || !projectID[0]['projectID']){
         res.redirect('/dashboard');
     }else {
+        const p_id = projectID[0]['projectID'];
         req.session.currentTask = t_id;
         req.session.currentProject = p_id;
 
         const { data: projectData, error: projectError } = await supabase.from('projects').select('*').eq('projectID', p_id);
         const { data: taskData, error: taskError } = await supabase.from('tasks').select('*').eq('taskID', t_id);
+        const { data: subtaskData, error: subtaskError } = await supabase.from('subtasks').select('*').eq('taskID', t_id);
         const { data: commentData, error: commentError } = await supabase.from('comments').select('*').eq('taskID', t_id);
         const { data: files, error: fileError } = await supabase.from('task_files').select('*').eq('taskID', t_id);
         const { data: userData, error } = await supabase.from('users').select('userID, name');
@@ -43,6 +44,7 @@ router.get('/', async (req,res,next) => {
         const returnData = {
             projectData: projectData,
             taskData: taskData,
+            subtaskData: subtaskData,
             comments: commentData,
             files: files,
             userID: req.session.userID,
@@ -63,15 +65,8 @@ router.post('/', async (req,res,next) => {
     if(!comment || !commenterID || !commenterName || !t_id || !p_id){
         res.redirect('/');
     }else {
-        const { data: projectData, error: projectError } = await supabase.from('projects').select('*').eq('projectID', p_id);
         const { data: taskData, error: taskError } = await supabase.from('tasks').select('*').eq('taskID', t_id);
-        const { data: commentData, error: commentError } = await supabase.from('comments').select('*').eq('taskID', t_id);
         const { error: insertError } = await supabase.from('comments').insert({ taskID: t_id, comment: comment, commenter_id: commenterID, commenter_name: commenterName });
-        const returnData = {
-            projectData: projectData,
-            taskData: taskData,
-            comments: commentData
-        }
         res.redirect(`/task?tid=${t_id}`);
 
         const { data: users, _error } = await supabase.from('users').select('*');
@@ -115,6 +110,44 @@ router.get('/edit-task', async (req, res, next) => {
     }
 });
 
+router.get('/create-subtask', async (req, res, next) => {
+    const { data, error } = await supabase.from('users').select('userID, name');
+    req.session.userID? res.render('create_subtask' ,{ users: data, userID: req.session.userID }) : res.redirect('/dashboard');
+});
+
+router.post('/create-subtask', async (req, res, next) => {
+    const { subtask_name, subtask_description, start_date, due_date, priority, responsible} = req.body;
+    const t_id = req.session.currentTask;
+    if(!t_id || !subtask_name || !subtask_description || !start_date || !due_date || !priority || !responsible){
+        res.redirect('/dashboard');
+    } else {
+        let newSubtaskID;
+        let isUnique = false;
+
+        while(!isUnique) {
+            newSubtaskID = "s" + Math.random().toString(36).substring(2);
+            const { data, error } = await supabase.from('subtasks').select('*').eq('subtaskID', newSubtaskID);
+            if(!data[0]){
+                isUnique = true;
+            }
+        }
+
+        const { error } = await supabase.from('subtasks').insert({ subtaskID: newSubtaskID, taskID: t_id, name: subtask_name, description: subtask_description, start: start_date, due: due_date, responsible: responsible, priority: priority });
+        res.redirect(`/task?tid=${t_id}`);
+        const { data: users, _error } = await supabase.from('users').select('*');
+
+        users.forEach(user => {
+            if(user.userID===responsible){
+                let userName = ""
+                users.forEach(currentUser => { if(currentUser.userID === req.session.userID){ userName = currentUser.name } });
+                emailSender.sendEmail(user.email, "サブタスクが割り当てられました", "", `<h1>サブタスク割り当て</h1><p><a href="${process.env.PRODUCT_URL}subtask?sid=${newSubtaskID}">${subtask_name}</a>というサブタスクに割り当てられました。確認しましょう。</p><br><p>作成者：${userName}</p>`)
+                    .then(() => {console.log("sent email successfully");})
+                    .catch((error) => {console.error('Failed to send email:', error);});
+            }
+        });
+    }
+});
+
 router.post('/edit-task', async (req, res, next) => {
     const { task_name, task_description, start_date, due_date, priority, risk, responsible, accountable, consulted, informed, progress} = req.body;
     const p_id = req.session.currentProject;
@@ -144,7 +177,7 @@ router.post('/edit-task', async (req, res, next) => {
 
             if(roles !== ""){
                 let userName = ""
-                users.forEach(currentUser => { if(currentUser.userID === req.session.userID){ userName = currentUser.name }; });
+                users.forEach(currentUser => { if(currentUser.userID === req.session.userID){ userName = currentUser.name } });
                 emailSender.sendEmail(user.email, "タスクが編集されました", "", `<h1>タスクの更新</h1><p><a href="${process.env.PRODUCT_URL}task?tid=${t_id}">${task_name}</a>というタスクに${roles}として割り当てられました。確認しましょう。</p><br><p>作成者：${userName}</p>`)
                 .then(() => {console.log("sent email successfully");})
                 .catch((error) => {console.error('Failed to send email:', error);});
@@ -245,4 +278,5 @@ router.post('/delete-file', async (req, res, next) => {
 
     res.redirect(`/task?tid=${req.session.currentTask}`);
 });
+
 module.exports = router;

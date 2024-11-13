@@ -67,7 +67,7 @@
                     <select name="responsible">
                         <% users.forEach( row => { %>
                         <option value="<%= row.userID%>"><%= row.name %></option>
-                        <% }) %>
+                        <% }); %>
                     </select>
                     <% } else { %>
                         <input type="text" placeholder="Enter Responsible" name="responsible" required>
