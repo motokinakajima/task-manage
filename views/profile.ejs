@@ -1,39 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script>
-        if (window.innerWidth <= 768) {
-            document.write('<link rel="stylesheet" href="/stylesheets/mobile.css">');
-        } else {
-            document.write('<link rel="stylesheet" href="/stylesheets/desktop.css">');
-        }
-    </script>
-    <title>Document</title>
-</head>
+<%- include('partials/head', { title: 'Hayabusa Charmer' }) %>
 <body>
 <div class="container">
-    <div class="sidebar">
-        <img src="/images/hayabusa2.png" alt="icon">
-        <% if(userID) { %>
-            <ul>
-                <a href="/"><li>ホーム</li></a>
-                <a href="/dashboard"><li>ダッシュボード</li></a>
-                <a href="/project/projects"><li>プロジェクト一覧</li></a>
-                <a href="/task/tasks"><li>タスク一覧</li></a>
-                <a href="/profile?uid=<%= userID %>"><li>マイページ</li></a>
-                <a href="/login/logout"><li>ログアウト</li></a>
-            </ul>
-        <% }else { %>
-            <ul>
-                <a href="/"><li>ホーム</li></a>
-                <a href="/login"><li>ログイン</li></a>
-                <a href="/login/create"><li>アカウント作成</li></a>
-            </ul>
-        <% } %>
-    </div>
-    
+    <%- include('partials/sidebar', { userID: userID }) %>
     <div class="content">
         <div class="section">
             <h2>プロフィール</h2>
