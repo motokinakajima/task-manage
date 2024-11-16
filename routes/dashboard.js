@@ -31,6 +31,21 @@ router.get('/', async (req, res) => {
             data: informedTask,
             error: informedTaskError
         } = await supabase.from('tasks').select('*').eq('informed', req.session.userID);
+        const { data: projectNames, error: projectNameError } = await supabase.from('projects').select('name, projectID');
+        const { data: taskNames, error: taskNameError } = await supabase.from('tasks').select('name, taskID, projectID');
+        const { data: subtaskNames, error: subtaskNameError } = await supabase.from('subtasks').select('name, subtaskID, taskID');
+        if (projectNameError || taskNameError || subtaskNameError) {
+            res.render('error', {
+                message: 'An error occurred while fetching data',
+                error: projectNameError || taskNameError || subtaskNameError
+            });
+        }
+        let data = {
+            projects: projectNames,
+            tasks: taskNames,
+            subtasks: subtaskNames
+        }
+        const tree = buildTree(data);
         const {data: users, error: usersError} = await supabase.from('users').select('userID, name');
         if (projectError || responsibleTaskError || accountableTaskError || consultedTaskError || informedTaskError || usersError) {
             res.render('error', {
@@ -46,7 +61,8 @@ router.get('/', async (req, res) => {
                 accountableTask: accountableTask,
                 consultedTask: consultedTask,
                 informedTask: informedTask,
-                users: users
+                users: users,
+                tree: tree
             });
         }
     }
@@ -98,3 +114,37 @@ router.post('/create-project', async (req, res,) => {
 });
 
 module.exports = router;
+
+// Function to build the tree
+function buildTree(data) {
+    // Map projects by ID for quick lookup
+    const projectMap = Object.fromEntries(
+        data.projects.map(project => [project.projectID, { name: project.name, url: `${process.env.PRODUCT_URL}project?pid=${project.projectID}`, children: [] }])
+    );
+
+    // Map tasks by ID for quick lookup
+    const taskMap = Object.fromEntries(
+        data.tasks.map(task => [task.taskID, { name: task.name, children: [] }])
+    );
+
+    // Assign tasks to their respective projects
+    data.tasks.forEach(task => {
+        if (projectMap[task.projectID]) {
+            projectMap[task.projectID].children.push(taskMap[task.taskID]);
+            taskMap[task.taskID].url = `${process.env.PRODUCT_URL}task?tid=${task.taskID}`;
+        }
+    });
+
+    // Assign subtasks to their respective tasks
+    data.subtasks.forEach(subtask => {
+        if (taskMap[subtask.taskID]) {
+            taskMap[subtask.taskID].children.push({ name: subtask.name , url: `${process.env.PRODUCT_URL}subtask?sid=${subtask.subtaskID}` });
+        }
+    });
+
+    // Create a root node for the tree
+    return {
+        name: "Hayabusa Racing",
+        children: Object.values(projectMap)
+    };
+}

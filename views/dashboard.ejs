@@ -2,6 +2,28 @@
 <html lang="en">
 <%- include('partials/head', { title: 'Hayabusa Charmer' }) %>
 
+<style>
+    .node circle {
+        fill: #69b3a2;
+    }
+
+    .node text {
+        font: 11px sans-serif;
+    }
+
+    .link {
+        fill: none;
+        stroke: #555;
+        stroke-opacity: 0.4;
+        stroke-width: 2px;
+    }
+
+    .node rect {
+        fill: #f9f9f9;
+        stroke: none;
+    }
+</style>
+
 <body>
     <div class="container">
         <%- include('partials/sidebar', { userID: userID }) %>
@@ -209,7 +231,79 @@
                     <p>表示するプロジェクトがありません</p>
                 <% } %>
             </div>
+
+            <svg style="background-color: #f9f9f9;"></svg>
         </div>
     </div>
 </body>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script>
+    const treeData = <%- JSON.stringify(tree)%>;
+
+    // Constants for spacing and sizing
+    const VERTICAL_SPACING = 50; // Space between nodes vertically
+    const HORIZONTAL_SPACING = 200; // Space between layers
+    const margin = { top: 40, right: 120, bottom: 40, left: 120 };
+
+    const root = d3.hierarchy(treeData);
+    const leafNodes = root.leaves().length;
+
+    const totalHeight = (leafNodes + 1) * VERTICAL_SPACING;
+    const svgHeight = totalHeight + margin.top + margin.bottom;
+
+    const svg = d3.select("svg");
+    const svgWidth = window.innerWidth - 50;
+    svg.attr("width", svgWidth)
+        .attr("height", svgHeight);
+
+    const treeLayout = d3.tree()
+        .nodeSize([VERTICAL_SPACING, HORIZONTAL_SPACING])
+        .separation(() => 1);
+
+    treeLayout(root);
+
+    const g = svg.append("g")
+        .attr("transform", `translate(${margin.left}, ${svgHeight/2})`);
+
+    // Draw links with rightward-opening curves
+    g.selectAll(".link")
+        .data(root.links())
+        .enter()
+        .append("path")
+        .attr("class", "link")
+        .attr("d", d => {
+            const sourceX = d.source.y;
+            const sourceY = d.source.x;
+            const targetX = d.target.y;
+            const targetY = d.target.x;
+            const midX = (sourceX + targetX) / 2;
+
+            return `M${sourceX},${sourceY}
+                    C${midX},${sourceY}
+                     ${midX},${targetY}
+                     ${targetX},${targetY}`;
+        });
+
+    // Create node groups
+    const node = g.selectAll(".node")
+        .data(root.descendants())
+        .enter()
+        .append("g")
+        .attr("class", "node")
+        .attr("transform", d => `translate(${d.y},${d.x})`);
+
+    node.append("circle")
+        .attr("fill", d => d.children ? "#555" : "#999")
+        .attr("r", 2.5);
+
+    node.append("a")
+        .attr("xlink:href", d => `${d.data.url}`)
+        .append("text")
+        .attr("dy", "0.31em")
+        .attr("x", d => d.children ? -6 : 6)
+        .attr("text-anchor", d => d.children ? "end" : "start")
+        .text(d => d.data.name)
+        .attr("stroke", "white")
+        .attr("paint-order", "stroke")
+</script>
 </html>
