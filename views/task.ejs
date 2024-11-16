@@ -43,38 +43,6 @@
             </div>
 
             <div class="section">
-                <h2>添付ファイル</h2>
-                <% if(files && files.length > 0) { %>
-                <% files.forEach(file => { %>
-                    <li>
-                        <span style="display: inline;">
-                            <a href="<%= file.fileUrl %>" target="_blank"><%= file.fileName.replace(/^[^_]+_/, '') %></a>
-                        </span>
-                        <form action="/task/delete-file" method="post" style="display: inline;">
-                            <input type="hidden" value="<%= file.id %>" name="fileID">
-                            <input type="hidden" value="<%= taskData[0].taskID %>" name="taskID">
-                            <button type="submit">削除</button>
-                        </form>
-                    </li>
-                <% }) %>
-                <% }else { %>
-                    <p>まだ添付ファイルはありません</p>
-                <% } %>
-            </div>
-
-            <div class="section">
-                <h2>ファイルアップロード</h2>
-                <form method="post" enctype="multipart/form-data" action="/task/upload-file">
-                    <div class="file-upload">
-                        <input type="hidden" name="taskID" value="<%= taskData[0].taskID%>">
-                        <input type="file" name="taskFile" id="taskFile" accept=".docx,.xlsx,.pdf" required>
-                        <label for="taskFile">ファイルを選択</label>
-                        <button type="submit">Upload File</button>
-                    </div>
-                </form>
-            </div>
-
-            <div class="section">
                 <h2 class="subtask-heading">サブタスク一覧</h2>
                 <% if(subtaskData && subtaskData.length > 0) { %>
                     <table>
@@ -139,6 +107,38 @@
                         <button type="submit">サブタスクを作成</button>
                     </form>
                 <% } %>
+            </div>
+
+            <div class="section">
+                <h2>添付ファイル</h2>
+                <% if(files && files.length > 0) { %>
+                <% files.forEach(file => { %>
+                    <li>
+                        <span style="display: inline;">
+                            <a href="<%= file.fileUrl %>" target="_blank"><%= file.fileName.replace(/^[^_]+_/, '') %></a>
+                        </span>
+                        <form action="/task/delete-file" method="post" style="display: inline;">
+                            <input type="hidden" value="<%= file.id %>" name="fileID">
+                            <input type="hidden" value="<%= taskData[0].taskID %>" name="taskID">
+                            <button type="submit">削除</button>
+                        </form>
+                    </li>
+                <% }) %>
+                <% }else { %>
+                    <p>まだ添付ファイルはありません</p>
+                <% } %>
+            </div>
+
+            <div class="section">
+                <h2>ファイルアップロード</h2>
+                <form method="post" enctype="multipart/form-data" action="/task/upload-file">
+                    <div class="file-upload">
+                        <input type="hidden" name="taskID" value="<%= taskData[0].taskID%>">
+                        <input type="file" name="taskFile" id="taskFile" accept=".docx,.xlsx,.pdf" required>
+                        <label for="taskFile">ファイルを選択</label>
+                        <button type="submit">Upload File</button>
+                    </div>
+                </form>
             </div>
 
             <div class="section">
