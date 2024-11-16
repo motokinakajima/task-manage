@@ -119,7 +119,7 @@ module.exports = router;
 function buildTree(data) {
     // Map projects by ID for quick lookup
     const projectMap = Object.fromEntries(
-        data.projects.map(project => [project.projectID, { name: project.name, url: `${process.env.PRODUCT_URL}project?pid=${project.projectID}`, children: [] }])
+        data.projects.map(project => [project.projectID, { name: project.name, url: `/project?pid=${project.projectID}`, children: [] }])
     );
 
     // Map tasks by ID for quick lookup
@@ -131,20 +131,20 @@ function buildTree(data) {
     data.tasks.forEach(task => {
         if (projectMap[task.projectID]) {
             projectMap[task.projectID].children.push(taskMap[task.taskID]);
-            taskMap[task.taskID].url = `${process.env.PRODUCT_URL}task?tid=${task.taskID}`;
+            taskMap[task.taskID].url = `/task?tid=${task.taskID}`;
         }
     });
 
     // Assign subtasks to their respective tasks
     data.subtasks.forEach(subtask => {
         if (taskMap[subtask.taskID]) {
-            taskMap[subtask.taskID].children.push({ name: subtask.name , url: `${process.env.PRODUCT_URL}subtask?sid=${subtask.subtaskID}` });
+            taskMap[subtask.taskID].children.push({ name: subtask.name , url: `/subtask?sid=${subtask.subtaskID}` });
         }
     });
 
     // Create a root node for the tree
     return {
-        name: "Hayabusa Racing",
+        name: "Hayabusa Racing", url: "/project/projects",
         children: Object.values(projectMap)
     };
 }
