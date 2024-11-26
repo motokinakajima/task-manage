@@ -169,13 +169,13 @@
 </body>
 
 <script>
-    const taskID = "<%= taskData[0].taskID %>";
+    const subTaskID = "<%= subtaskData[0].taskID %>";
     document.getElementById('selectProgress').addEventListener('change', function() {
         // Get the selected value
         const selectedValue = this.value;
     
         // Create the data object to send
-        const data = { taskID: taskID, progress: selectedValue };
+        const data = { subtaskID: subTaskID, progress: selectedValue };
     
         // Send the POST request to the server
         fetch('/task/update-progress', {
