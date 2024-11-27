@@ -87,6 +87,30 @@ router.post('/', async (req, res, next) => {
     }
 });
 
+router.post('/update-progress', async (req, res, next) => {
+    const { subtaskID, progress } = req.body;
+
+    const { data: subtaskData, error: subtaskError } = await supabase.from('subtasks').select('*').eq('subtaskID', subtaskID);
+
+    if(subtaskData[0].completion !== progress){
+        const { _error } = await supabase.from('task_log').insert({ description: `updated progress at ${subtaskData[0].name} (${subtaskID}) from ${getProgress(subtaskData[0].completion)} to ${getProgress(parseInt(progress))}` });
+    }
+
+    const { error } = await supabase.from('subtasks').update({ completion: progress }).eq('subtaskID', subtaskID);
+
+    const { data: users, _error } = await supabase.from('users').select('*');
+
+    users.forEach(user => {
+        if(user.userID===subtaskData[0].responsible || user.userID===subtaskData[0].accountable || user.userID===subtaskData[0].consulted || user.userID===subtaskData[0].informed){
+            let userName = ""
+            users.forEach(currentUser => { if(currentUser.userID === req.session.userID){ userName = currentUser.name }; });
+            emailSender.sendEmail(user.email, "サブタスクの進行度が編集されました", "", `<h1>サブタスクの進行度の更新</h1><p><a href="${process.env.PRODUCT_URL}subtask?sid=${subtaskID}">${subtaskData[0].name}</a>というタスクの進行度が${getProgress(subtaskData[0].completion)}から${getProgress(parseInt(progress))}に変わりました。確認しましょう。</p><br><p>変更者：${userName}</p>`)
+                .then(() => {console.log("sent email successfully");})
+                .catch((error) => {console.error('Failed to send email:', error);});
+        }
+    });
+});
+
 router.get('/edit-subtask', async (req, res, next) => {
     const s_id = req.query.sid;
     const { data: taskID, error: taskError } = await supabase.from('subtasks').select('taskID').eq('subtaskID', s_id);

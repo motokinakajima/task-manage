@@ -85,7 +85,7 @@
                                 </td>
                                 <td data-completion="<%= row.completion %>">
                                     <div class="selector">
-                                        <select name="progress" id="<%= row.taskID %>_progress_selector">
+                                        <select name="progress" id="<%= row.subtaskID %>_progress_selector">
                                             <option value="-1" <%= row.completion === -1 ? 'selected' : '' %>>開始前
                                             </option>
                                             <option value="0" <%= row.completion === 0 ? 'selected' : '' %>>進行中
@@ -169,31 +169,30 @@
 </body>
 
 <script>
-    const subTaskID = "<%= subtaskData[0].taskID %>";
-    document.getElementById('selectProgress').addEventListener('change', function() {
-        // Get the selected value
-        const selectedValue = this.value;
-    
-        // Create the data object to send
-        const data = { subtaskID: subTaskID, progress: selectedValue };
-    
-        // Send the POST request to the server
-        fetch('/task/update-progress', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data) // Send the selected value as JSON
-        })
-        .then(response => response.json())
-        .then(result => {
-            console.log('Success:', result);
-            // Reload the page after the server has processed the request
-            location.reload();
-        })
-        .catch(error => {
-            console.error('Error:', error);
+    <%subtaskData.forEach(row => {%>
+    {
+        const subtaskID = "<%= row.subtaskID%>";
+        document.getElementById("<%= row.subtaskID %>_progress_selector").addEventListener('change', function() {
+            const selectedValue = this.value;
+            const data = { subtaskID: subtaskID, progress: selectedValue };
+            fetch('/subtask/update-progress', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data) // Send the selected value as JSON
+            })
+                .then(response => response.json())
+                .then(result => {
+                    console.log('Success:', result);
+                    // Reload the page after the server has processed the request
+                    location.reload();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
         });
-    });
+    }
+    <%});%>
     
 </script>
