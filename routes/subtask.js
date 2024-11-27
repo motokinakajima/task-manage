@@ -102,7 +102,7 @@ router.post('/update-progress', async (req, res, next) => {
 
     users.forEach(user => {
         if(user.userID===subtaskData[0].responsible || user.userID===subtaskData[0].accountable || user.userID===subtaskData[0].consulted || user.userID===subtaskData[0].informed){
-            let userName = ""
+            let userName = "";
             users.forEach(currentUser => { if(currentUser.userID === req.session.userID){ userName = currentUser.name }; });
             emailSender.sendEmail(user.email, "サブタスクの進行度が編集されました", "", `<h1>サブタスクの進行度の更新</h1><p><a href="${process.env.PRODUCT_URL}subtask?sid=${subtaskID}">${subtaskData[0].name}</a>というタスクの進行度が${getProgress(subtaskData[0].completion)}から${getProgress(parseInt(progress))}に変わりました。確認しましょう。</p><br><p>変更者：${userName}</p>`)
                 .then(() => {console.log("sent email successfully");})
