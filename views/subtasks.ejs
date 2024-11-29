@@ -6,14 +6,14 @@
     <%- include('partials/sidebar', { userID: userID }) %>
     <div class="content">
         <div class="section">
-            <h2 class="task-heading">タスク一覧</h2>
-            <% if(taskData && taskData.length > 0) { %>
-            <table id="taskTable">
-                <thead>
+            <h2 class="subtask-heading">サブタスク一覧</h2>
+            <% if(subtaskData && subtaskData.length > 0) { %>
+                <table id="subtaskTable">
+                    <thead>
                     <tr>
                         <th>タスク名</th>
                         <th>概要</th>
-                        <th onclick="sortTasksByDueDate()" style="cursor: pointer;">期限 <span id="sortArrow">↑</span></th>
+                        <th onclick="sortsubTasksByDueDate()" style="cursor: pointer;">期限 <span id="sortArrow">↑</span></th>
                         <th>責任者
                             <div class="selector">
                                 <select id="personFilter">
@@ -35,11 +35,11 @@
                             </div>
                         </th>
                     </tr>
-                </thead>
-                <tbody>
-                    <% taskData.forEach(row => { %>
+                    </thead>
+                    <tbody>
+                    <% subtaskData.forEach(row => { %>
                         <tr>
-                            <td><a href="/task?tid=<%= row.taskID %>"><%= row.name %></a></td>
+                            <td><a href="/subtask?tid=<%= row.subtaskID %>"><%= row.name %></a></td>
                             <td><%= row.description %></td>
                             <td><%= row.due %></td>
                             <td>
@@ -50,7 +50,7 @@
                             </td>
                             <td data-completion="<%= row.completion %>">
                                 <div class="selector">
-                                    <select name="progress" id="<%= row.taskID %>_progress_selector">
+                                    <select name="progress" id="<%= row.subtaskID %>_progress_selector">
                                         <option value="-1" <%= row.completion === -1 ? 'selected' : ''%>>開始前</option>
                                         <option value="0" <%= row.completion === 0 ? 'selected' : ''%>>進行中</option>
                                         <option value="1" <%= row.completion === 1 ? 'selected' : ''%>>完了</option>
@@ -59,9 +59,9 @@
                             </td>
                         </tr>
                     <% }) %>
-                </tbody>
-            </table>
-            <div id="chart_div"></div>
+                    </tbody>
+                </table>
+                <div id="chart_div"></div>
             <% } else { %>
                 <p>表示するタスクがありません</p>
             <% } %>
@@ -73,10 +73,10 @@
 <script>
     let isAsc = true; // Sort order flag
 
-    function filterTasks() {
+    function filterSubtasks() {
         let statusFilterValue = document.getElementById('statusFilter').value;
         let personFilterValue = document.getElementById('personFilter').value;
-        let table = document.getElementById('taskTable');
+        let table = document.getElementById('subtaskTable');
         let rows = table.getElementsByTagName('tr');
 
         for (let i = 1; i < rows.length; i++) {
@@ -92,8 +92,8 @@
         }
     }
 
-    function sortTasksByDueDate() {
-        let table = document.getElementById('taskTable').getElementsByTagName('tbody')[0];
+    function sortSubtasksByDueDate() {
+        let table = document.getElementById('subtaskTable').getElementsByTagName('tbody')[0];
         let rows = Array.from(table.getElementsByTagName('tr'));
 
         rows.sort(function(a, b) {
@@ -112,11 +112,11 @@
     }
 
     document.addEventListener("DOMContentLoaded", function() {
-        document.getElementById('statusFilter').addEventListener('change', filterTasks);
-        document.getElementById('personFilter').addEventListener('change', filterTasks);
+        document.getElementById('statusFilter').addEventListener('change', filterSubtasks);
+        document.getElementById('personFilter').addEventListener('change', filterSubtasks);
     });
 
-    let tasks = <%- JSON.stringify(taskData) %>;
+    let subtasks = <%- JSON.stringify(subtaskData) %>;
 
     google.charts.load('current', {'packages': ['gantt']});
     google.charts.setOnLoadCallback(drawChart);
@@ -135,27 +135,27 @@
         data.addColumn('number', 'Duration');
         data.addColumn('number', 'Percent Complete');
         data.addColumn('string', 'Dependencies');
-    
+
         let insertData = [];
-    
-        tasks.forEach(function (row) {
+
+        subtasks.forEach(function (row) {
             let startDate = new Date(row.start);
             let endDate = new Date(row.due);
-    
+
             if (isNaN(startDate.getTime())) {
                 console.error('Invalid start date:', row.start);
                 startDate = new Date();
             }
-    
+
             if (isNaN(endDate.getTime())) {
                 console.error('Invalid end date:', row.due);
                 endDate = new Date();
             }
-    
+
             let duration = endDate >= startDate ? (endDate - startDate) / (1000 * 60 * 60 * 24) : 0;
             let rowData = [
-                row.taskID ? row.taskID.toString() : '',
-                row.name || 'Unnamed Task',
+                row.subtaskID ? row.subtaskID.toString() : '',
+                row.name || 'Unnamed Subtask',
                 row.description || 'No Description',
                 startDate,
                 endDate,
@@ -165,16 +165,16 @@
             ];
             insertData.push(rowData);
         });
-    
+
         data.addRows(insertData);
-    
-        // Calculate dynamic height based on the number of tasks
+
+        // Calculate dynamic height based on the number of subtasks
         let rowHeight = 30;  // Each row is 30 pixels high
         let padding = 50;   // Padding for the chart (timeline, headers, etc.)
         let chartHeight = insertData.length * rowHeight + padding; // Dynamic height calculation
-    
+
         let containerWidth = document.querySelector('#chart_div').parentElement.offsetWidth * 0.95;
-    
+
         var options = {
             height: chartHeight,  // Use the dynamically calculated height
             width: containerWidth, // Adjust width to fit the container
@@ -182,11 +182,11 @@
                 trackHeight: rowHeight // Adjust row height
             }
         };
-    
+
         var chart = new google.visualization.Gantt(document.getElementById('chart_div'));
-    
+
         chart.draw(data, options);
-    
+
         google.visualization.events.addListener(chart, 'onmouseover', function() {
             var tooltips = document.querySelectorAll('.google-visualization-tooltip');
             tooltips.forEach(function (tooltip) {
@@ -195,13 +195,13 @@
         });
     }
 
-    <%taskData.forEach(row => {%>
+    <%subtaskData.forEach(row => {%>
     {
-        const taskID = "<%= row.taskID%>";
-        document.getElementById("<%= row.taskID %>_progress_selector").addEventListener('change', function() {
+        const subtaskID = "<%= row.subtaskID%>";
+        document.getElementById("<%= row.subtaskID %>_progress_selector").addEventListener('change', function() {
             const selectedValue = this.value;
-            const data = { taskID: taskID, progress: selectedValue };
-            fetch('/task/update-progress', {
+            const data = { subtaskID: subtaskID, progress: selectedValue };
+            fetch('/subtask/update-progress', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

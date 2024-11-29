@@ -132,6 +132,12 @@ router.get('/edit-subtask', async (req, res, next) => {
     }
 });
 
+router.get('/subtasks', async (req, res, next) => {
+    const { data: subtaskData, error } = await supabase.from('subtasks').select('*');
+    const { data: userData, _error } = await supabase.from('users').select('userID, name');
+    req.session.userID ? res.render('subtasks', { subtaskData: subtaskData, userID: req.session.userID, users: userData }) : res.redirect('/dashboard');
+});
+
 router.post('/edit-subtask', async (req, res, next) => {
     const { subtask_name, subtask_description, start_date, due_date, priority, responsible, progress } = req.body;
     const s_id = req.session.currentSubtask;
