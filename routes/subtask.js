@@ -167,6 +167,10 @@ router.post('/edit-subtask', async (req, res, next) => {
     }
 });
 
-
+router.post('/delete-subtask', async (req, res, next) =>{
+    const subtaskID = req.body['subtaskID'];
+    const { error } = await supabase.from('subtasks').delete().eq('subtaskID', subtaskID);
+    res.redirect(`/task?tid=${req.session.currentTask}`);
+});
 
 module.exports = router;

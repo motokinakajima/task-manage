@@ -31,6 +31,10 @@ router.get('/', async (req, res) => {
             data: informedTask,
             error: informedTaskError
         } = await supabase.from('tasks').select('*').eq('informed', req.session.userID);
+        const {
+            data: subtaskData,
+            error: subtaskError
+        } = await supabase.from('subtasks').select('*').eq('responsible', req.session.userID);
         const { data: projectNames, error: projectNameError } = await supabase.from('projects').select('name, projectID');
         const { data: taskNames, error: taskNameError } = await supabase.from('tasks').select('name, taskID, projectID');
         const { data: subtaskNames, error: subtaskNameError } = await supabase.from('subtasks').select('name, subtaskID, taskID');
@@ -61,6 +65,7 @@ router.get('/', async (req, res) => {
                 accountableTask: accountableTask,
                 consultedTask: consultedTask,
                 informedTask: informedTask,
+                subtask: subtaskData,
                 users: users,
                 tree: tree
             });
