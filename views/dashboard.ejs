@@ -4,11 +4,13 @@
 
 <style>
     .node circle {
-        fill: #69b3a2;
+        fill: #0d47a1;
     }
 
     .node text {
-        font: 11px sans-serif;
+        font-size: 14px;
+        font-family: "BIZ UDPGothic", "Sawarabi Gothic", "Noto Serif JP", 'Roboto', sans-serif;
+        font-weight: 400;
     }
 
     .link {
@@ -276,7 +278,7 @@
                 <% } %>
             </div>
 
-            <svg style="background-color: #f9f9f9;"></svg>
+            <svg style="background-color: #e3f2fd;"></svg>
         </div>
     </div>
 </body>
@@ -287,7 +289,7 @@
     // Constants for spacing and sizing
     const VERTICAL_SPACING = 50; // Space between nodes vertically
     const HORIZONTAL_SPACING = 200; // Space between layers
-    const margin = { top: 40, right: 120, bottom: 40, left: 120 };
+    const margin = { top: 40, right: 120, bottom: 40, left: 200 };
 
     const root = d3.hierarchy(treeData);
     const leafNodes = root.leaves().length;
@@ -296,7 +298,8 @@
     const svgHeight = totalHeight + margin.top + margin.bottom;
 
     const svg = d3.select("svg");
-    const svgWidth = window.innerWidth - 50;
+    const container = svg.node().parentNode;
+    const svgWidth = container.getBoundingClientRect().width * 0.8;
     svg.attr("width", svgWidth)
         .attr("height", svgHeight);
 

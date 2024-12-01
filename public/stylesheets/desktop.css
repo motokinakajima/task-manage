@@ -6,7 +6,8 @@
 
 body {
     background-color: #e3f2fd;
-    font-family: 'Roboto', sans-serif;
+    font-family: "BIZ UDPGothic", "Sawarabi Gothic", "Noto Serif JP", 'Roboto', sans-serif;
+    font-weight: 400;
     color: #333;
     line-height: 1.8;
 }
@@ -135,7 +136,7 @@ a {
 }
 
 a:hover {
-    color: #3c096c;
+    color: #0d47a1;
 }
 
 #chart_div {
