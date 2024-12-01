@@ -96,7 +96,7 @@
 
     const svg = d3.select("svg");
     const container = svg.node().parentNode;
-    const svgWidth = container.getBoundingClientRect().width * 0.8;
+    const svgWidth = container.getBoundingClientRect().width;
     svg.attr("width", svgWidth)
         .attr("height", svgHeight);
 
