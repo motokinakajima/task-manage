@@ -307,7 +307,7 @@
     treeLayout(root);
 
     const g = svg.append("g")
-        .attr("transform", `translate(${margin.left}, ${svgHeight/2})`);
+        .attr("transform", `translate(${margin.left}, ${svgHeight/2 + margin.top + VERTICAL_SPACING})`);
 
     // Draw links with rightward-opening curves
     g.selectAll(".link")
