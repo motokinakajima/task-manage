@@ -61,7 +61,7 @@ body {
 
 .sidebar ul a li:hover {
     background-color: #90caf9;
-    color: black;
+    color: #333;
     cursor: pointer;
 }
 
@@ -415,5 +415,10 @@ form button {
 
 .section h2.subtask-heading {
     background-color: #90caf9; /* Color for task heading */
+    color: #333;
+}
+
+.sidebar ul a li.sidebar-selected {
+    background-color: #90caf9;
     color: #333;
 }
