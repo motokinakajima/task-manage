@@ -45,11 +45,11 @@
             <div class="section">
                 <h2 class="subtask-heading">サブタスク一覧</h2>
                 <% if(subtaskData && subtaskData.length > 0) { %>
-                    <table>
+                    <table id="subtaskTable">
                         <thead>
                         <tr>
                             <th>サブタスク名</th>
-                            <th onclick="sortTasksByDueDate()" style="cursor: pointer;">期限 <span
+                            <th onclick="sortSubtasksByDueDate()" style="cursor: pointer;">期限 <span
                                         id="sortArrow">↑</span></th>
                             <th>責任者
                                 <div class="selector">
@@ -169,6 +169,51 @@
 </body>
 
 <script>
+    let isAsc = true; // Sort order flag
+
+    function filterSubtasks() {
+        let statusFilterValue = document.getElementById('statusFilter').value;
+        let personFilterValue = document.getElementById('personFilter').value;
+        let table = document.getElementById('subtaskTable');
+        let rows = table.getElementsByTagName('tr');
+
+        for (let i = 1; i < rows.length; i++) {
+            let completionValue = rows[i].getElementsByTagName('td')[4].dataset.completion;
+            let personValue = rows[i].getElementsByTagName('td')[3].querySelector('div').innerText.trim();
+
+            if ((statusFilterValue === 'all' || statusFilterValue === completionValue) &&
+                (personFilterValue === 'all' || personFilterValue === personValue)) {
+                rows[i].style.display = '';
+            } else {
+                rows[i].style.display = 'none';
+            }
+        }
+    }
+
+    function sortSubtasksByDueDate() {
+        let table = document.getElementById('subtaskTable').getElementsByTagName('tbody')[0];
+        let rows = Array.from(table.getElementsByTagName('tr'));
+
+        rows.sort(function(a, b) {
+            let dateA = new Date(a.getElementsByTagName('td')[2].innerText);
+            let dateB = new Date(b.getElementsByTagName('td')[2].innerText);
+            return isAsc ? dateA - dateB : dateB - dateA;
+        });
+
+        // Toggle the sort order
+        isAsc = !isAsc;
+
+        // Update the sort arrow based on the current sort order
+        document.getElementById('sortArrow').textContent = isAsc ? '↑' : '↓';
+
+        rows.forEach(row => table.appendChild(row)); // Reorder rows
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        document.getElementById('statusFilter').addEventListener('change', filterSubtasks);
+        document.getElementById('personFilter').addEventListener('change', filterSubtasks);
+    });
+
     <%subtaskData.forEach(row => {%>
     {
         const subtaskID = "<%= row.subtaskID%>";
