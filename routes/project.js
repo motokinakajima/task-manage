@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const path = require('path');
 const EmailSender = require('../EmailSender');
+const { sendMessageToChannel, client } = require('../DiscordBot');
 const { createClient } = require('@supabase/supabase-js');
 require('dotenv').config();
 
@@ -73,6 +74,9 @@ router.post('/create-task', async (req, res, next) => {
 
         const { data: users, _error } = await supabase.from('users').select('*');
 
+        let userName = ""
+        users.forEach(currentUser => { if(currentUser.userID === req.session.userID){ userName = currentUser.name } });
+
         users.forEach(user => {
             let roles = "";
             if(user.userID===responsible){ roles+=", responsible"; }
@@ -82,13 +86,41 @@ router.post('/create-task', async (req, res, next) => {
             if(roles!==""){ roles = roles.substring(2); }
 
             if(roles !== ""){
-                let userName = ""
-                users.forEach(currentUser => { if(currentUser.userID === req.session.userID){ userName = currentUser.name } });
                 emailSender.sendEmail(user.email, "タスクが割り当てられました", "", `<h1>タスク割り当て</h1><p><a href="${process.env.PRODUCT_URL}task?tid=${newTaskID}">${task_name}</a>というタスクに${roles}として割り当てられました。確認しましょう。</p><br><p>作成者：${userName}</p>`)
                 .then(() => {console.log("sent email successfully");})
                 .catch((error) => {console.error('Failed to send email:', error);});
             }
         });
+
+        const findUserById = (userID) => {
+            const user = users.find(user => user.userID === userID);
+            return user ? (user.discordID ? `<@${user.discordID}>` : user.name) : "未割り当て";
+        };
+
+        const responsibleUser = findUserById(responsible);
+        const accountableUser = findUserById(accountable);
+        const consultedUser = findUserById(consulted);
+        const informedUser = findUserById(informed);
+
+        // メッセージを構築
+        const messageContent = `
+:clipboard: **タスクが作成されました！**
+
+**タスク名:** [${task_name}](${process.env.PRODUCT_URL}task?tid=${newTaskID})
+**作成者:** ${userName}
+
+- Responsible: ${responsibleUser}
+- Accountable: ${accountableUser}
+- Consulted: ${consultedUser}
+- Informed: ${informedUser}
+`;
+
+        try {
+            await sendMessageToChannel('hayabusa-charmer', messageContent);
+            console.log(`Message sent to channel: ${messageContent}`);
+        } catch (error) {
+            console.error(`Failed to send message: ${error.message}`);
+        }
     }
 });
 

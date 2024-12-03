@@ -5,6 +5,7 @@ const { createClient } = require('@supabase/supabase-js');
 const multer = require('multer');
 const { transliterate } = require('transliteration');
 const EmailSender = require('../EmailSender');
+const { sendMessageToChannel, client } = require('../DiscordBot');
 require('dotenv').config();
 
 const supabaseUrl = process.env.SUPABASE_URL;
