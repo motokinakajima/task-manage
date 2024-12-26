@@ -5,6 +5,7 @@ const { createClient } = require('@supabase/supabase-js');
 const multer = require('multer');
 const { transliterate } = require('transliteration');
 const EmailSender = require('../EmailSender');
+const {cleanUp} = require("../DatabaseUtil");
 require('dotenv').config();
 
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -170,6 +171,7 @@ router.post('/edit-subtask', async (req, res, next) => {
 router.post('/delete-subtask', async (req, res, next) =>{
     const subtaskID = req.body['subtaskID'];
     const { error } = await supabase.from('subtasks').delete().eq('subtaskID', subtaskID);
+    await cleanUp();
     res.redirect(`/task?tid=${req.session.currentTask}`);
 });
 

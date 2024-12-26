@@ -4,6 +4,7 @@ const path = require('path');
 const EmailSender = require('../EmailSender');
 const { sendMessageToChannel, client } = require('../DiscordBot');
 const { createClient } = require('@supabase/supabase-js');
+const {cleanUp} = require("../DatabaseUtil");
 require('dotenv').config();
 
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -150,6 +151,7 @@ router.post('/delete-project', async (req, res, next) => {
     const projectID = req.body['projectID'];
     const { error } = await supabase.from('projects').delete().eq('projectID', projectID);
     const { _error } = await supabase.from('tasks').delete().eq('projectID', projectID);
+    await cleanUp();
     res.redirect('/dashboard');
 })
 
