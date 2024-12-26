@@ -6,6 +6,7 @@ const multer = require('multer');
 const { transliterate } = require('transliteration');
 const EmailSender = require('../EmailSender');
 const { sendMessageToChannel, client } = require('../DiscordBot');
+const { cleanUp } = require('../DatabaseUtil');
 require('dotenv').config();
 
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -190,6 +191,7 @@ router.post('/edit-task', async (req, res, next) => {
 router.post('/delete-task', async (req, res, next) => {
     const taskID = req.body['taskID'];
     const { error } = await supabase.from('tasks').delete().eq('taskID', taskID);
+    await cleanUp();
     res.redirect(`/project?pid=${req.session.currentProject}`);
 });
 

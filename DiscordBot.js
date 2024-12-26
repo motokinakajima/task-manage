@@ -39,5 +39,4 @@ async function sendMessageToChannel(channelName, messageContent) {
   }
 }
 
-// エクスポートする
 module.exports = { client, sendMessageToChannel };
