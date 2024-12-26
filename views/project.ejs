@@ -45,6 +45,7 @@
                                     </select>
                                 </div>
                             </th>
+                            <th></th>
                         </tr>
                         </thead>
                         <tbody>
@@ -67,6 +68,12 @@
                                             <option value="1" <%= row.completion === 1 ? 'selected' : ''%>>完了</option>
                                         </select>
                                     </div>
+                                </td>
+                                <td>
+                                    <form action="/task/delete-task" method="post">
+                                        <input type="hidden" name="taskID" value="<%= row.taskID %>">
+                                        <button type="submit">削除</button>
+                                    </form>
                                 </td>
                             </tr>
                         <% }) %>

@@ -71,6 +71,7 @@
                                     </select>
                                 </div>
                             </th>
+                            <th></th>
                         </tr>
                         </thead>
                         <% subtaskData.forEach(row => { %>
@@ -94,6 +95,12 @@
                                             </option>
                                         </select>
                                     </div>
+                                </td>
+                                <td>
+                                    <form action="/subtask/delete-subtask" method="post">
+                                        <input type="hidden" name="subtaskID" value="<%= row.subtaskID %>">
+                                        <button type="submit">削除</button>
+                                    </form>
                                 </td>
                             </tr>
                         <% }) %>
